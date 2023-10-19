@@ -1,4 +1,6 @@
 from django.db import models
+from shared.validators import code_name_validate
+
 from shared.models import BaseModel
 
 
@@ -6,11 +8,15 @@ class Unit(models.Model):
     code = models.CharField(max_length=10, unique=True, null=True, blank=True)
     name = models.CharField(max_length=100)
 
+    def save(self, *args, **kwargs):
+        code_name_validate(self)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 
 
-# to do
+# should do
 class Specification(models.Model):
     pass
 
@@ -34,6 +40,10 @@ class Firm(BaseModel):
     license_number = models.CharField(max_length=100, null=True, blank=True)
     agent = models.ForeignKey('hr.Employee', on_delete=models.CASCADE, null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        code_name_validate(self)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 
@@ -42,6 +52,10 @@ class MaterialGroup(models.Model):
     code = models.CharField(max_length=10, unique=True, null=True, blank=True)
     name = models.CharField(max_length=100)
 
+    def save(self, *args, **kwargs):
+        code_name_validate(self)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 
@@ -49,6 +63,10 @@ class MaterialGroup(models.Model):
 class MaterialType(models.Model):
     code = models.CharField(max_length=10, unique=True, null=True, blank=True)
     name = models.CharField(max_length=100)
+
+    def save(self, *args, **kwargs):
+        code_name_validate(self)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -63,6 +81,10 @@ class Material(BaseModel):
     color = models.CharField(max_length=100, null=True, blank=True)
     photo = models.ImageField(upload_to='materials_photos', default='material_default_picture.png')
 
+    def save(self, *args, **kwargs):
+        code_name_validate(self)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 
@@ -75,6 +97,10 @@ class Warehouse(BaseModel):
     can_export = models.BooleanField(default=True)
     use_negative = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        code_name_validate(self)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -93,6 +119,10 @@ class Currency(BaseModel):
     code = models.CharField(max_length=10, null=True, blank=True)
     name = models.CharField(max_length=100)
 
+    def save(self, *args, **kwargs):
+        code_name_validate(self)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 
@@ -109,3 +139,4 @@ class Brand(BaseModel):
 
     def __str__(self):
         return self.name
+

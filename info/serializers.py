@@ -1,5 +1,12 @@
 from rest_framework.serializers import ModelSerializer
 from info import models
+from shared.serializers import BaseNameCodeSerializer
+
+
+class UnitSerializer(BaseNameCodeSerializer):
+    class Meta:
+        model = models.Unit
+        fields = ('id', 'code', 'name')
 
 
 class SpecSerializer(ModelSerializer):
@@ -8,37 +15,31 @@ class SpecSerializer(ModelSerializer):
         fields = '__all__'
 
 
-class UnitSerializer(ModelSerializer):
-    class Meta:
-        model = models.Unit
-        fields = '__all__'
-
-
-class FirmSerializer(ModelSerializer):
+class FirmSerializer(BaseNameCodeSerializer):
     class Meta:
         model = models.Firm
         fields = '__all__'
 
 
-class MaterialGroupSerializer(ModelSerializer):
+class MaterialGroupSerializer(BaseNameCodeSerializer):
     class Meta:
         model = models.MaterialGroup
         fields = '__all__'
 
 
-class MaterialSerializer(ModelSerializer):
+class MaterialSerializer(BaseNameCodeSerializer):
     class Meta:
         model = models.Material
         fields = '__all__'
 
 
-class MaterialTypeSerializer(ModelSerializer):
+class MaterialTypeSerializer(BaseNameCodeSerializer):
     class Meta:
         model = models.MaterialType
         fields = '__all__'
 
 
-class WarehouseSerializer(ModelSerializer):
+class WarehouseSerializer(BaseNameCodeSerializer):
     class Meta:
         model = models.Warehouse
         fields = '__all__'
