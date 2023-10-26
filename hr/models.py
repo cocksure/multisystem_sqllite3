@@ -5,7 +5,7 @@ from shared.models import BaseModel
 
 
 class Department(BaseModel):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     amount_of_employee = models.IntegerField(validators=[MaxValueValidator(limit_value=9999)])
 
     def __str__(self):
@@ -13,7 +13,7 @@ class Department(BaseModel):
 
 
 class Position(BaseModel):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name

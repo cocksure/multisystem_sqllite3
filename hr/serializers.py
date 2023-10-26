@@ -6,7 +6,14 @@ from hr import models
 class DepartmentSerializer(ModelSerializer):
     class Meta:
         model = models.Department
-        fields = '__all__'
+        fields = ('id', 'name', 'amount_of_employee' )
+
+    def validate(self, attrs):
+        name = attrs.get('name')
+
+        if name.exist():
+            raise serializers.ValidationError("Такой отдел ужу есть")
+
 
 
 class PositionSerializer(ModelSerializer):

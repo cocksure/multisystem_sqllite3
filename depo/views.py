@@ -10,7 +10,7 @@ class OutgoingListCreateView(BaseListView):
 
 
 class OutgoingDetailListCreateView(BaseListView):
-    queryset = models.DetailOutgoing.objects.all()
+    queryset = models.OutgoingDetail.objects.all()
     serializer_class = serializers.DetailOutgoingSerializer
 
 
@@ -30,7 +30,7 @@ class OutgoingUpdateDeleteDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class OutgoingDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = models.DetailOutgoing.objects.all()
+    queryset = models.OutgoingDetail.objects.all()
     serializer_class = serializers.DetailOutgoingSerializer
 
 

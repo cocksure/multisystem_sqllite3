@@ -1,3 +1,4 @@
+from django.core import validators
 from django.db import models
 from shared.validators import code_name_validate
 
@@ -72,6 +73,14 @@ class MaterialType(models.Model):
         return self.name
 
 
+class MaterialParty(BaseModel):
+    material = models.ForeignKey('info.Material', on_delete=models.CASCADE)
+    code = models.CharField(max_length=10, unique=True, null=True, blank=True)
+
+    def __str__(self):
+        return self.code
+
+
 class Material(BaseModel):
     code = models.CharField(max_length=10, unique=True, null=True, blank=True)
     name = models.CharField(max_length=100, unique=True)
@@ -80,6 +89,15 @@ class Material(BaseModel):
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
     color = models.CharField(max_length=100, null=True, blank=True)
     photo = models.ImageField(upload_to='materials_photos', default='material_default_picture.png')
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    note = models.TextField(max_length=1000, null=True, blank=True)
+    warranty = models.DurationField(null=True, blank=True)
+    size_and_shape = models.CharField(max_length=100, null=True, blank=True)
+    weight = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    material_party = models.ForeignKey(MaterialParty, on_delete=models.CASCADE,
+                                       null=True, blank=True, related_name='materials')
+
+
 
     def save(self, *args, **kwargs):
         code_name_validate(self)
@@ -108,7 +126,13 @@ class Warehouse(BaseModel):
 
 class Device(BaseModel):
     agent = models.ForeignKey('hr.Employee', on_delete=models.CASCADE)
-    imei = models.CharField(max_length=16, unique=True)
+    imei = models.CharField(max_length=16, unique=True, validators=[
+        validators.RegexValidator(
+            regex=r'^\d{16}$',
+            message='IMEI должен состоять из 16 цифр.',
+            code='invalid_imei'
+        )
+    ])
     comment = models.TextField(null=True, blank=True)
 
     def __str__(self):
@@ -139,4 +163,3 @@ class Brand(BaseModel):
 
     def __str__(self):
         return self.name
-

@@ -19,6 +19,6 @@ class EmployeeAdmin(admin.ModelAdmin):
     list_display = ('id', 'full_name', 'user', 'department', 'position', 'badge_number', 'report_card', 'is_fired',
                     'date_of_hire')
     list_filter = ('department', 'position', 'is_fired')
-    search_fields = ('full_name', 'badge_number', 'report_card',)
+    search_fields = ('full_name', 'department', 'positions', 'badge_number', 'report_card',)
     date_hierarchy = 'created_time'
     list_per_page = 100

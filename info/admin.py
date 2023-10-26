@@ -17,6 +17,7 @@ class FirmAdmin(admin.ModelAdmin):
     search_fields = ('code', 'name')
     list_filter = ('type',)
     list_per_page = 100
+    date_hierarchy = 'created_time'
     fields = (
         'code', 'name', 'type', 'legal_address', 'actual_address', 'phone_number', 'fax_machine', 'license_number',
         'agent', 'created_by', 'updated_by', 'created_time', 'updated_time')
@@ -44,9 +45,17 @@ class MaterialAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     search_fields = ('code', 'name', 'group__name', 'type__name', 'unit__name')
     list_filter = ('group', 'type', 'unit')
     list_per_page = 100
-    fields = ('code', 'name', 'group', 'type', 'unit', 'color', 'photo', 'created_by', 'updated_by', 'created_time',
-              'updated_time')
+    date_hierarchy = 'created_time'
+    fields = ('code', 'name', 'group', 'type', 'unit', 'color', 'material_party', 'weight', 'size_and_shape', 'warranty',
+              'photo', 'created_by', 'updated_by', 'created_time', 'updated_time')
     resource_class = MaterialResource
+
+
+@admin.register(models.MaterialParty)
+class MaterialPartyAdmin(admin.ModelAdmin):
+    list_display = ('material', 'code')
+    search_fields = ('material', 'code')
+    list_per_page = 100
 
 
 @admin.register(models.Warehouse)
@@ -66,6 +75,7 @@ class DeviceAdmin(admin.ModelAdmin):
     list_display = ('agent', 'imei', 'comment')
     search_fields = ('agent', 'imei')
     list_per_page = 100
+    date_hierarchy = 'created_time'
     fields = ('agent', 'imei', 'comment', 'created_by', 'updated_by',  'created_time', 'updated_time')
 
 
@@ -74,6 +84,7 @@ class CurrencyAdmin(admin.ModelAdmin):
     list_display = ('code', 'name',)
     search_fields = ('code', 'name')
     list_per_page = 100
+    date_hierarchy = 'created_time'
     fields = ('code', 'name', 'created_by', 'updated_by', 'created_time', 'updated_time')
 
 
@@ -82,4 +93,5 @@ class BrandAdmin(admin.ModelAdmin):
     list_display = ('id', 'name',)
     search_fields = ('id', 'name')
     list_per_page = 100
+    date_hierarchy = 'created_time'
     fields = ('name', 'created_by', 'updated_by', 'created_time', 'updated_time')

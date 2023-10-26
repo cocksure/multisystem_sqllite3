@@ -1,3 +1,4 @@
+from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ModelSerializer
 from info import models
 from shared.serializers import BaseNameCodeSerializer
@@ -31,6 +32,8 @@ class MaterialSerializer(BaseNameCodeSerializer):
     class Meta:
         model = models.Material
         fields = '__all__'
+
+
 
 
 class MaterialTypeSerializer(BaseNameCodeSerializer):
@@ -67,3 +70,10 @@ class BrandSerializer(ModelSerializer):
     class Meta:
         model = models.Brand
         fields = '__all__'
+
+
+class MaterialPartySerializer(ModelSerializer):
+
+    class Meta:
+        model = models.MaterialParty
+        fields = ('id', 'material', 'code')

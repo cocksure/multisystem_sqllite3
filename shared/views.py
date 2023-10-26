@@ -6,7 +6,6 @@ class BaseListView(generics.ListCreateAPIView):
     queryset = None
     serializer_class = None
     pagination_class = PageNumberPagination
-    pagination_class.page_size = 20
 
     def perform_create(self, serializer):
         serializer.save()

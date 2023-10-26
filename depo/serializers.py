@@ -22,5 +22,5 @@ class IncomingDetailSerializer(ModelSerializer):
 
 class DetailOutgoingSerializer(ModelSerializer):
     class Meta:
-        model = models.DetailOutgoing
+        model = models.OutgoingDetail
         fields = '__all__'
