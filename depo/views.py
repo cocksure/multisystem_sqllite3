@@ -7,6 +7,8 @@ from shared.views import BaseListView
 class OutgoingListCreateView(BaseListView):
     queryset = models.Outgoing.objects.all()
     serializer_class = serializers.OutgoingSerializer
+    filterset_fields = ['warehouse', 'type', ]
+    search_fields = ['code']
 
 
 class OutgoingDetailListCreateView(BaseListView):
@@ -17,6 +19,8 @@ class OutgoingDetailListCreateView(BaseListView):
 class IncomingListCreateView(BaseListView):
     queryset = models.Incoming.objects.all()
     serializer_class = serializers.IncomingSerializer
+    filterset_fields = ['warehouse']
+    search_fields = ['code']
 
 
 class IncomingDetailListCreateView(BaseListView):

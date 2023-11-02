@@ -1,11 +1,13 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics
-from rest_framework.pagination import PageNumberPagination
+from shared.utils import CustomPagination
 
 
 class BaseListView(generics.ListCreateAPIView):
     queryset = None
     serializer_class = None
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPagination
+    filter_backends = [DjangoFilterBackend]
 
     def perform_create(self, serializer):
         serializer.save()

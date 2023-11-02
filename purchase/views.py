@@ -1,13 +1,18 @@
 from rest_framework import generics
 from purchase import models, serializers
-from shared.models import BaseModel
 from rest_framework.response import Response
 from rest_framework import status
 
+from shared.filters import PurchaseFilter
+from shared.views import BaseListView
 
-class PurchaseListCreateView(BaseModel):
+
+class PurchaseListCreateView(BaseListView):
     queryset = models.Purchase.objects.all()
     serializer_class = serializers.PurchaseSerializer
+    filterset_fields = ['status']
+    search_fields = ['id', 'requester']
+    filterset_class = PurchaseFilter
 
 
 class PurchaseDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
