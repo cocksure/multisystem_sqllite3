@@ -22,25 +22,6 @@ class FirmListCreateView(BaseListView):
     search_fields = ['code', 'name']
 
 
-class MaterialGroupListCreateView(BaseListView):
-    queryset = models.MaterialGroup.objects.all()
-    serializer_class = serializers.MaterialGroupSerializer
-    search_fields = ['code', 'name']
-
-
-class MaterialTypeListCreateView(BaseListView):
-    queryset = models.MaterialType.objects.all()
-    serializer_class = serializers.MaterialTypeSerializer
-    search_fields = ['code', 'name']
-
-
-class WarehouseListCreateView(BaseListView):
-    queryset = models.Warehouse.objects.all()
-    serializer_class = serializers.WarehouseSerializer
-    filterset_fields = ['name']
-    search_fields = ['code', 'name']
-
-
 class DeviceListCreateView(BaseListView):
     queryset = models.Device.objects.all()
     serializer_class = serializers.DeviceSerializer
@@ -64,13 +45,6 @@ class BrandListCreateView(BaseListView):
     search_fields = ['name']
 
 
-class MaterialListCreateView(BaseListView):
-    queryset = models.Material.objects.all()
-    serializer_class = serializers.MaterialSerializer
-    filterset_fields = ['group', 'type', ]
-    search_fields = ['code', 'name', 'material_party']
-
-
 class SpecDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Specification.objects.all()
     serializer_class = serializers.SpecSerializer
@@ -84,21 +58,6 @@ class UnitDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 class FirmDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Firm.objects.all()
     serializer_class = serializers.FirmSerializer
-
-
-class MaterialGroupDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = models.MaterialGroup.objects.all()
-    serializer_class = serializers.MaterialGroupSerializer
-
-
-class MaterialTypeDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = models.MaterialType.objects.all()
-    serializer_class = serializers.MaterialTypeSerializer
-
-
-class WarehouseDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = models.Warehouse.objects.all()
-    serializer_class = serializers.WarehouseSerializer
 
 
 class DeviceDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
@@ -119,8 +78,3 @@ class DealerDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 class BrandDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Brand.objects.all()
     serializer_class = serializers.BrandSerializer
-
-
-class MaterialDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = models.Material.objects.all()
-    serializer_class = serializers.MaterialSerializer

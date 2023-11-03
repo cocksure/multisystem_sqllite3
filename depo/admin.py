@@ -35,3 +35,11 @@ class OutgoingDetailAdmin(admin.ModelAdmin):
     list_display = ('outgoing', 'material', 'amount', 'color', 'material_party',)
     search_fields = ('material', 'material_party')
     list_per_page = 100
+
+
+@admin.register(models.Stock)
+class StockAdmin(admin.ModelAdmin):
+    list_display = ('warehouse', 'material', 'quantity')
+    search_fields = ('material', )
+    list_filter = ('warehouse',)
+    list_per_page = 100

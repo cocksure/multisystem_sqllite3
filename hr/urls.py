@@ -5,6 +5,9 @@ app_name = 'hr'
 
 
 urlpatterns = [
+    path('divisions/', views.DivisionsListCreateView.as_view(), name='division-list'),
+    path('division/<int:pk>/', views.DivisionDetailUpdateDeleteView.as_view(), name='division-detail'),
+
     path('departments/', views.DepartmentListCreateView.as_view(), name='department-list'),
     path('departments/<int:pk>/', views.DepartmentDetailUpdateDelete.as_view(), name='department-detail'),
 

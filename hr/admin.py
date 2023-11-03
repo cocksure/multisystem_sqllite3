@@ -2,6 +2,12 @@ from django.contrib import admin
 from hr import models
 
 
+@admin.register(models.Division)
+class DivisionAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    list_per_page = 100
+
+
 @admin.register(models.Department)
 class DepartmentAdmin(admin.ModelAdmin):
     list_display = ('name', 'amount_of_employee')

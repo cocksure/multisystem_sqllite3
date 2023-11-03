@@ -3,16 +3,22 @@ from rest_framework.serializers import ModelSerializer
 from hr import models
 
 
+class DivisionSerializer(ModelSerializer):
+    class Meta:
+        model = models.Division
+        fields = ('id', 'name')
+
 class DepartmentSerializer(ModelSerializer):
+
     class Meta:
         model = models.Department
-        fields = ('id', 'name', 'amount_of_employee' )
+        fields = ('__all__')
 
     def validate(self, attrs):
         name = attrs.get('name')
 
         if name.exist():
-            raise serializers.ValidationError("Такой отдел ужу есть")
+            raise serializers.ValidationError("Такой отдел уже есть")
 
 
 

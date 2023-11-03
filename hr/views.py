@@ -4,9 +4,16 @@ from hr import serializers, models
 from shared.views import BaseListView
 
 
+class DivisionsListCreateView(BaseListView):
+    queryset = models.Division.objects.all()
+    serializer_class = serializers.DivisionSerializer
+    search_fields = ['name']
+
+
 class DepartmentListCreateView(BaseListView):
     queryset = models.Department.objects.all()
     serializer_class = serializers.DepartmentSerializer
+    filterset_fields = ['divisions']
     search_fields = ['name', ]
 
 
@@ -22,6 +29,11 @@ class EmployeeListCreateView(BaseListView):
     serializer_class = serializers.EmployeeSerializer
     filterset_fields = ['gender', 'department', 'position', 'is_fired']
     search_fields = ['full_name', '=report_card', '=badge_number', '=passport_pin']
+
+
+class DivisionDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.Division.objects.all()
+    serializer_class = serializers.DivisionSerializer
 
 
 class DepartmentDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):

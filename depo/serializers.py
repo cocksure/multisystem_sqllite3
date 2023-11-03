@@ -24,3 +24,9 @@ class DetailOutgoingSerializer(ModelSerializer):
     class Meta:
         model = models.OutgoingDetail
         fields = '__all__'
+
+
+class StockSerializer(ModelSerializer):
+    class Meta:
+        model = models.Stock
+        fields = '__all__'

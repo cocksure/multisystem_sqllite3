@@ -1,6 +1,6 @@
 from rest_framework import generics
-from depo import models
-from depo import serializers
+
+from depo import serializers, models
 from shared.views import BaseListView
 
 
@@ -16,18 +16,6 @@ class OutgoingDetailListCreateView(BaseListView):
     serializer_class = serializers.DetailOutgoingSerializer
 
 
-class IncomingListCreateView(BaseListView):
-    queryset = models.Incoming.objects.all()
-    serializer_class = serializers.IncomingSerializer
-    filterset_fields = ['warehouse']
-    search_fields = ['code']
-
-
-class IncomingDetailListCreateView(BaseListView):
-    queryset = models.IncomingDetail.objects.all()
-    serializer_class = serializers.IncomingDetailSerializer
-
-
 class OutgoingUpdateDeleteDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Outgoing.objects.all()
     serializer_class = serializers.OutgoingSerializer
@@ -36,13 +24,3 @@ class OutgoingUpdateDeleteDetailView(generics.RetrieveUpdateDestroyAPIView):
 class OutgoingDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.OutgoingDetail.objects.all()
     serializer_class = serializers.DetailOutgoingSerializer
-
-
-class IncomingUpdateDeleteDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = models.Incoming.objects.all()
-    serializer_class = serializers.IncomingSerializer
-
-
-class IncomingDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = models.IncomingDetail.objects.all()
-    serializer_class = serializers.IncomingDetailSerializer

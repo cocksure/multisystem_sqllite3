@@ -88,7 +88,8 @@ class Material(BaseModel):
     type = models.ForeignKey(MaterialType, on_delete=models.CASCADE, null=True, blank=True)
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
     color = models.CharField(max_length=100, null=True, blank=True)
-    photo = models.ImageField(upload_to='materials_photos', default='material_default_picture.png')
+    photo = models.ImageField(upload_to='materials_photos', default='material_default_picture.png', null=True,
+                              blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     note = models.TextField(max_length=1000, null=True, blank=True)
     warranty = models.DurationField(null=True, blank=True)
@@ -96,8 +97,6 @@ class Material(BaseModel):
     weight = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     material_party = models.ForeignKey(MaterialParty, on_delete=models.CASCADE,
                                        null=True, blank=True, related_name='materials')
-
-
 
     def save(self, *args, **kwargs):
         code_name_validate(self)

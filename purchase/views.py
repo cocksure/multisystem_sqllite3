@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework import generics
 from purchase import models, serializers
 from rest_framework.response import Response
@@ -7,7 +8,7 @@ from shared.filters import PurchaseFilter
 from shared.views import BaseListView
 
 
-class PurchaseListCreateView(BaseListView):
+class PurchaseListCreateView(BaseListView, LoginRequiredMixin):
     queryset = models.Purchase.objects.all()
     serializer_class = serializers.PurchaseSerializer
     filterset_fields = ['status']

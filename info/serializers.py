@@ -4,6 +4,12 @@ from info import models
 from shared.serializers import BaseNameCodeSerializer
 
 
+class MaterialPartySerializer(ModelSerializer):
+
+    class Meta:
+        model = models.MaterialParty
+        fields = ('id', 'material', 'code')
+
 class UnitSerializer(BaseNameCodeSerializer):
     class Meta:
         model = models.Unit
@@ -29,6 +35,7 @@ class MaterialGroupSerializer(BaseNameCodeSerializer):
 
 
 class MaterialSerializer(BaseNameCodeSerializer):
+
     class Meta:
         model = models.Material
         fields = '__all__'
@@ -72,8 +79,4 @@ class BrandSerializer(ModelSerializer):
         fields = '__all__'
 
 
-class MaterialPartySerializer(ModelSerializer):
 
-    class Meta:
-        model = models.MaterialParty
-        fields = ('id', 'material', 'code')

@@ -4,9 +4,17 @@ from django.db import models
 from shared.models import BaseModel
 
 
+class Division(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
 class Department(BaseModel):
     name = models.CharField(max_length=100, unique=True)
     amount_of_employee = models.IntegerField(validators=[MaxValueValidator(limit_value=9999)])
+    divisions = models.ForeignKey(Division, on_delete=models.CASCADE, related_name='departments')
 
     def __str__(self):
         return self.name
