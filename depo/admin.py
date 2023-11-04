@@ -39,7 +39,7 @@ class OutgoingDetailAdmin(admin.ModelAdmin):
 
 @admin.register(models.Stock)
 class StockAdmin(admin.ModelAdmin):
-    list_display = ('warehouse', 'material', 'quantity')
+    list_display = ('warehouse', 'material', 'amount')
     search_fields = ('material', )
     list_filter = ('warehouse',)
     list_per_page = 100

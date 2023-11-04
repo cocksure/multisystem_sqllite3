@@ -86,7 +86,7 @@ class OutgoingDetail(models.Model):
 class Stock(models.Model):
     material = models.ForeignKey('info.Material', on_delete=models.CASCADE)
     warehouse = models.ForeignKey('info.Warehouse', on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=0)
+    amount = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return f"{self.material} в {self.warehouse} ({self.quantity} шт.)"
+        return f"{self.material} в {self.warehouse} ({self.amount} шт.)"

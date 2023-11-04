@@ -3,7 +3,7 @@ from rest_framework import generics
 from shared.utils import CustomPagination
 
 
-class BaseListView(generics.ListAPIView):
+class BaseListView(generics.ListCreateAPIView):
     queryset = None
     serializer_class = None
     pagination_class = CustomPagination

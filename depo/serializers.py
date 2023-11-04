@@ -1,5 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 from depo import models
+from info.serializers.warehouse import WarehouseSerializer
 
 
 class OutgoingSerializer(ModelSerializer):
