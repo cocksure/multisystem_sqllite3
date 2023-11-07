@@ -1,5 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+
+from info.models import Material
 from shared.models import BaseModel
 from django.db.models.signals import pre_save
 
@@ -20,6 +22,14 @@ class Outgoing(BaseModel):
     to_warehouse = models.ForeignKey('info.Warehouse', on_delete=models.CASCADE, null=True, blank=True,
                                      related_name='outgoing_to_warehouse')
     note = models.CharField(max_length=250, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.warehouse and not self.warehouse.can_export:
+            raise ValidationError("Невозможно расходовать!")
+        if self.warehouse and not self.warehouse.is_active:
+            raise ValidationError("Невозможно расходовать для неактивного склада.")
+
+        super().save(*args, **kwargs)
 
     def clean(self):
         if self.type == self.MOVEMENT:
@@ -47,6 +57,21 @@ pre_save.connect(generate_outgoing_code, sender=Outgoing)
 
 
 class Incoming(BaseModel):
+    ACCEPT, REJECT, IN_PROGRESS = ('Принят', 'Отклонен', 'В ожидании')
+
+    INCOMING_STATUS = (
+        (ACCEPT, ACCEPT),
+        (REJECT, REJECT),
+        (IN_PROGRESS, IN_PROGRESS)
+    )
+
+    MOVEMENT, INVOICE = ('Перемешения', 'По накладной')
+
+    INCOMING_TYPE = (
+        (MOVEMENT, MOVEMENT),
+        (INVOICE, INVOICE)
+    )
+
     data = models.DateField(auto_now_add=True)
     warehouse = models.ForeignKey('info.Warehouse', on_delete=models.CASCADE, related_name='incoming_warehouse')
     from_warehouse = models.ForeignKey('info.Warehouse', on_delete=models.CASCADE, null=True, blank=True,
@@ -54,8 +79,30 @@ class Incoming(BaseModel):
     invoice = models.CharField(max_length=150, null=True, blank=True)
     contract_number = models.CharField(max_length=150, null=True, blank=True)
     outgoing = models.ForeignKey(Outgoing, on_delete=models.CASCADE, null=True, blank=True)
-    purchase = models.ForeignKey('purchase.Purchase', on_delete=models.SET_NULL, null=True)
+    purchase = models.ForeignKey('purchase.Purchase', on_delete=models.SET_NULL, null=True, blank=True)
     note = models.CharField(max_length=250, null=True, blank=True)
+    status = models.CharField(choices=INCOMING_STATUS, default=None, null=True, blank=True)
+    type = models.CharField(choices=INCOMING_TYPE, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.from_warehouse:
+            self.type = 'movement'
+        else:
+            self.type = 'invoice'
+
+        if self.status == self.ACCEPT:
+            self.status = self.ACCEPT
+        elif self.status == self.REJECT:
+            self.status = self.REJECT
+        else:
+            self.status = self.IN_PROGRESS
+
+        if self.warehouse and not self.warehouse.can_import:
+            raise ValidationError("Невозможно создать приход для склада, который не может импортировать.")
+        if self.warehouse and not self.warehouse.is_active:
+            raise ValidationError("Невозможно создать приход для неактивного склада.")
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.warehouse} {self.data}"

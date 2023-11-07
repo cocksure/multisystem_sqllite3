@@ -1,8 +1,8 @@
-from rest_framework import generics, status
+from rest_framework import status
 from rest_framework.response import Response
 
 from depo import serializers, models
-from depo.models import Stock
+from depo.models import Stock, Incoming, Outgoing
 from info.models import Warehouse
 from shared.views import BaseListView
 from django.shortcuts import get_object_or_404
@@ -23,7 +23,6 @@ class IncomingDetailListCreateView(BaseListView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # Создать деталь прихода
         self.perform_create(serializer)
 
         # Обновить остатки на складе на основе информации о детали прихода
@@ -46,12 +45,21 @@ class IncomingDetailListCreateView(BaseListView):
         stock.amount += amount_change
         stock.save()
 
+    def update(self, request, *args, **kwargs):
+        incoming_detail = self.get_object()
+        serializer = self.get_serializer(incoming_detail, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
-class IncomingUpdateDeleteDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = models.Incoming.objects.all()
-    serializer_class = serializers.IncomingSerializer
+        if incoming_detail.incoming.type == Incoming.MOVEMENT:  # Проверяем тип прихода
+            # Если приход - перемещение, то устанавливаем флаги confirmed и accepted
+            if 'accepted' in request.data:
+                incoming_detail.accepted = request.data.get('accepted', False)
+            if 'accepted' in request.data:
+                incoming_detail.accepted = request.data.get('accepted', False)
 
+            # Сохраняем изменения
+            incoming_detail.save()
 
-class IncomingDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = models.IncomingDetail.objects.all()
-    serializer_class = serializers.IncomingDetailSerializer
+        return Response(serializer.data)
+

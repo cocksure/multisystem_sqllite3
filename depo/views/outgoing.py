@@ -23,17 +23,25 @@ class OutgoingDetailListCreateView(BaseListView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # Создать деталь расхода
-        self.perform_create(serializer)
+        # Create the outgoing detail
+        outgoing_detail = serializer.save()
 
-        # Обновить остатки на складе на основе информации о детали расхода
-        material_id = serializer.validated_data['material']
-        amount = serializer.validated_data['amount']
-        outgoing = serializer.validated_data['outgoing']
+        material = outgoing_detail.material
+        amount = outgoing_detail.amount
+        outgoing = outgoing_detail.outgoing
         warehouse = get_object_or_404(Warehouse, id=outgoing.warehouse_id)
 
-        # Обновить остатки на складе на основе информации о детали расхода
-        self.update_stock(material_id, warehouse, amount)
+        if not warehouse.use_negative:
+            # Check if stock will go negative without allowing negative stock
+            stock, created = Stock.objects.get_or_create(material=material, warehouse=warehouse)
+            if stock.amount < amount:
+                return Response({"message": "Negative stock is not allowed for this warehouse."},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        # Update the stock in the warehouse
+        stock, _ = Stock.objects.get_or_create(material=material, warehouse=warehouse)
+        stock.amount -= amount
+        stock.save()
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -47,11 +55,3 @@ class OutgoingDetailListCreateView(BaseListView):
         stock.save()
 
 
-class OutgoingUpdateDeleteDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = models.Outgoing.objects.all()
-    serializer_class = serializers.OutgoingSerializer
-
-
-class OutgoingDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = models.OutgoingDetail.objects.all()
-    serializer_class = serializers.DetailOutgoingSerializer
