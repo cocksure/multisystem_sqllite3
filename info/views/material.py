@@ -1,39 +1,27 @@
-from rest_framework import generics
+from rest_framework import viewsets
 from info import models
-from shared.views import BaseListView
+from shared.utils import CustomPagination
 
 from info.serializers import material
 
 
-class MaterialGroupListCreateView(BaseListView):
+class MaterialGroupViewSetView(viewsets.ModelViewSet):
     queryset = models.MaterialGroup.objects.all()
     serializer_class = material.MaterialGroupSerializer
     search_fields = ['code', 'name']
+    pagination_class = CustomPagination
 
 
-class MaterialTypeListCreateView(BaseListView):
+class MaterialTypeViewSetView(viewsets.ModelViewSet):
     queryset = models.MaterialType.objects.all()
     serializer_class = material.MaterialTypeSerializer
     search_fields = ['code', 'name']
+    pagination_class = CustomPagination
 
 
-class MaterialListCreateView(BaseListView):
+class MaterialViewSetView(viewsets.ModelViewSet):
     queryset = models.Material.objects.all()
     serializer_class = material.MaterialSerializer
     filterset_fields = ['group', 'type']
     search_fields = ['code', 'name', 'material_party__code']
-
-
-class MaterialDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = models.Material.objects.all()
-    serializer_class = material.MaterialSerializer
-
-
-class MaterialGroupDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = models.MaterialGroup.objects.all()
-    serializer_class = material.MaterialGroupSerializer
-
-
-class MaterialTypeDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = models.MaterialType.objects.all()
-    serializer_class = material.MaterialTypeSerializer
+    pagination_class = CustomPagination

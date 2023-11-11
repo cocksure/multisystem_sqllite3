@@ -17,9 +17,10 @@ class Unit(models.Model):
         return self.name
 
 
-# should do
 class Specification(models.Model):
-    pass
+    year = models.CharField(max_length=4)
+    name = models.CharField(max_length=100)
+    firm = models.ForeignKey('info.Firm', on_delete=models.SET_NULL, null=True, blank=True, default=None)
 
 
 class Firm(BaseModel):

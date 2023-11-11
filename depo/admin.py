@@ -12,6 +12,17 @@ class OutgoingAdmin(admin.ModelAdmin):
     list_per_page = 100
     date_hierarchy = 'created_time'
 
+    def save_model(self, request, obj, form, change):
+        obj.update_stock()
+
+        super().save_model(request, obj, form, change)
+@admin.register(models.OutgoingMaterial)
+class OutgoingMaterialAdmin(admin.ModelAdmin):
+    list_display = ('outgoing', 'material', 'amount', 'color', 'material_party',)
+    search_fields = ('material', 'material_party')
+    list_per_page = 100
+
+
 
 @admin.register(models.Incoming)
 class IncomingAdmin(admin.ModelAdmin):
@@ -22,7 +33,7 @@ class IncomingAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_time'
 
 
-@admin.register(models.IncomingDetail)
+@admin.register(models.IncomingMaterial)
 class IncomingDetailAdmin(admin.ModelAdmin):
     list_display = ('incoming', 'material', 'amount', 'color', 'material_party',)
     search_fields = ('material', 'material_party')
@@ -30,16 +41,9 @@ class IncomingDetailAdmin(admin.ModelAdmin):
     fields = ('incoming', 'material', 'amount', 'color', 'material_party',)
 
 
-@admin.register(models.OutgoingDetail)
-class OutgoingDetailAdmin(admin.ModelAdmin):
-    list_display = ('outgoing', 'material', 'amount', 'color', 'material_party',)
-    search_fields = ('material', 'material_party')
-    list_per_page = 100
-
-
 @admin.register(models.Stock)
 class StockAdmin(admin.ModelAdmin):
     list_display = ('warehouse', 'material', 'amount')
-    search_fields = ('material', )
+    search_fields = ('material',)
     list_filter = ('warehouse',)
     list_per_page = 100

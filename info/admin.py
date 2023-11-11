@@ -60,7 +60,7 @@ class MaterialPartyAdmin(admin.ModelAdmin):
 
 @admin.register(models.Warehouse)
 class WarehouseAdmin(admin.ModelAdmin):
-    list_display = ('code', 'name', 'location', 'can_import', 'can_export', 'use_negative', 'is_active')
+    list_display = ('name', 'code', 'location', 'can_import', 'can_export', 'use_negative', 'is_active')
     search_fields = ('code', 'name', 'location')
     list_filter = ('can_import', 'can_export', 'use_negative', 'is_active')
     list_per_page = 100

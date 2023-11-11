@@ -1,9 +1,8 @@
-from django.core.exceptions import ValidationError
 from django.db import models
 
 from info.models import Material
 from shared.models import BaseModel
-from django.db.models.signals import pre_save
+from .services import validate_movement_outgoing, process_incoming, validate_outgoing, validate_incoming
 
 
 class Outgoing(BaseModel):
@@ -24,36 +23,27 @@ class Outgoing(BaseModel):
     note = models.CharField(max_length=250, null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if self.warehouse and not self.warehouse.can_export:
-            raise ValidationError("Невозможно расходовать!")
-        if self.warehouse and not self.warehouse.is_active:
-            raise ValidationError("Невозможно расходовать для неактивного склада.")
+        if not self.code:
+            last_outgoing = Outgoing.objects.order_by('-id').first()
+            if last_outgoing:
+                last_id = last_outgoing.id
+                new_id = int(last_id) + 1
+                self.code = f'WA{str(new_id).zfill(6)}'
+            else:
+                self.code = 'WA000001'
 
         super().save(*args, **kwargs)
 
     def clean(self):
+        validate_outgoing(self)
+
         if self.type == self.MOVEMENT:
-            if not self.to_warehouse:
-                raise ValidationError('Выберите склад в поле "to_warehouse", так как тип - перемещения.')
-            if self.to_warehouse == self.warehouse:
-                raise ValidationError('Нельзя перемещать товары на тот же самый склад.')
+            validate_movement_outgoing(self)
+
+        super().clean()
 
     def __str__(self):
         return self.code
-
-
-def generate_outgoing_code(sender, instance, **kwargs):
-    if not instance.code:
-        last_outgoing = Outgoing.objects.order_by('-id').first()
-        if last_outgoing:
-            last_id = last_outgoing.id
-            new_id = int(last_id) + 1
-            instance.code = f'WA{str(new_id).zfill(6)}'
-        else:
-            instance.code = 'WA000001'
-
-
-pre_save.connect(generate_outgoing_code, sender=Outgoing)
 
 
 class Incoming(BaseModel):
@@ -85,30 +75,20 @@ class Incoming(BaseModel):
     type = models.CharField(choices=INCOMING_TYPE, null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if self.from_warehouse:
-            self.type = 'movement'
-        else:
-            self.type = 'invoice'
-
-        if self.status == self.ACCEPT:
-            self.status = self.ACCEPT
-        elif self.status == self.REJECT:
-            self.status = self.REJECT
-        else:
-            self.status = self.IN_PROGRESS
-
-        if self.warehouse and not self.warehouse.can_import:
-            raise ValidationError("Невозможно создать приход для склада, который не может импортировать.")
-        if self.warehouse and not self.warehouse.is_active:
-            raise ValidationError("Невозможно создать приход для неактивного склада.")
+        process_incoming(self)
 
         super().save(*args, **kwargs)
+
+    def clean(self):
+        validate_incoming(self)
+
+        super().clean()
 
     def __str__(self):
         return f"{self.warehouse} {self.data}"
 
 
-class IncomingDetail(models.Model):
+class IncomingMaterial(models.Model):
     incoming = models.ForeignKey(Incoming, on_delete=models.CASCADE)
     material = models.ForeignKey('info.Material', on_delete=models.CASCADE)
     purchase_product = models.ForeignKey('purchase.PurchaseProduct', on_delete=models.SET_NULL, null=True)
@@ -121,7 +101,7 @@ class IncomingDetail(models.Model):
         return f"{self.material} - {self.amount}"
 
 
-class OutgoingDetail(models.Model):
+class OutgoingMaterial(models.Model):
     outgoing = models.ForeignKey(Outgoing, on_delete=models.CASCADE)
     material = models.ForeignKey('info.Material', on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
@@ -134,6 +114,14 @@ class Stock(models.Model):
     material = models.ForeignKey('info.Material', on_delete=models.CASCADE)
     warehouse = models.ForeignKey('info.Warehouse', on_delete=models.CASCADE)
     amount = models.PositiveIntegerField(default=0)
+
+    def spend(self, amount, use_negative=False):
+        if use_negative or self.amount >= amount:
+            self.amount -= amount
+            self.save()
+            return True
+        else:
+            return False
 
     def __str__(self):
         return f"{self.material} в {self.warehouse} ({self.amount} шт.)"

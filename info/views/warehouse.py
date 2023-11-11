@@ -1,16 +1,12 @@
-from rest_framework import generics
+from rest_framework import viewsets
 from info import models
-from shared.views import BaseListView
+from shared.utils import CustomPagination
 from info.serializers import warehouse
 
 
-class WarehouseListCreateView(BaseListView):
+class WarehouseViewSetView(viewsets.ModelViewSet):
     queryset = models.Warehouse.objects.all()
     serializer_class = warehouse.WarehouseSerializer
     filterset_fields = ['name']
     search_fields = ['code', 'name']
-
-
-class WarehouseDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = models.Warehouse.objects.all()
-    serializer_class = warehouse.WarehouseSerializer
+    pagination_class = CustomPagination
