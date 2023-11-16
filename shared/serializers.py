@@ -16,5 +16,3 @@ class BaseNameCodeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Имя не должно содержать только цифры.")
 
         return data
-
-

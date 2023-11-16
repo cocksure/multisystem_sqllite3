@@ -112,7 +112,7 @@ class Warehouse(BaseModel):
     name = models.CharField(max_length=100, unique=True)
     location = models.CharField(max_length=150, null=True, blank=True)
     can_import = models.BooleanField(default=True)
-    can_export = models.BooleanField(default=True)
+    can_export = models.BooleanField(default=False)
     use_negative = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
 

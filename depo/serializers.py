@@ -1,5 +1,6 @@
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
-from depo import models
+from depo import models, services
 
 
 class OutgoingMaterialSerializer(ModelSerializer):
@@ -16,7 +17,6 @@ class OutgoingSerializer(ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
 
-        # Вычислите и добавьте связанные OutgoingMaterial в данные
         outgoing_materials = models.OutgoingMaterial.objects.filter(outgoing=instance)
         outgoing_material_data = OutgoingMaterialSerializer(outgoing_materials, many=True).data
         data['outgoing_materials'] = outgoing_material_data
@@ -44,8 +44,22 @@ class IncomingSerializer(ModelSerializer):
 
         return data
 
+    def validate(self, data):
+        incoming_type = data.get('type')
+        invoice = data.get('invoice')
+        if incoming_type == 'По накладной' and not invoice:
+            raise serializers.ValidationError({'__all__': ['Необходимо указать номер инвойса.']})
+        return data
+
 
 class StockSerializer(ModelSerializer):
+    material_name = serializers.CharField(source='material.name', read_only=True)
+    material_group = serializers.CharField(source='material.group.name', read_only=True)
+    material_party = serializers.CharField(source='material.material_party.code', read_only=True)
+    material_color = serializers.CharField(source='material.color', read_only=True)
+    material_unit = serializers.CharField(source='material.unit.name', read_only=True)
+
     class Meta:
         model = models.Stock
-        fields = '__all__'
+        fields = ['id', 'warehouse', 'material_name', 'material_group',
+                  'material_party', 'material_unit', 'material_color', 'amount']

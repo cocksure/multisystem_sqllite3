@@ -17,20 +17,16 @@ def validate_movement_outgoing(instance):
 
 def process_incoming(incoming):
     if incoming.from_warehouse:
-        incoming.type = 'movement'
+        incoming.type = 'Перемешения'
     else:
-        incoming.type = 'invoice'
-
-    if incoming.status == incoming.ACCEPT:
-        incoming.status = incoming.ACCEPT
-    elif incoming.status == incoming.REJECT:
-        incoming.status = incoming.REJECT
-    else:
-        incoming.status = incoming.IN_PROGRESS
+        incoming.type = 'По накладной'
 
 
 def validate_incoming(instance):
     if instance.warehouse and not instance.warehouse.can_import:
-        raise ValidationError("Невозможно создать приход для склада, который не может импортировать.")
+        raise ValidationError('Невозможно создать приход для склада, который не может импортировать.')
     if instance.warehouse and not instance.warehouse.is_active:
         raise ValidationError("Невозможно создать приход для неактивного склада.")
+
+    if instance.type == 'По накладной' and not instance.invoice:
+        raise ValidationError('Необходимо указать номер инвойса.')

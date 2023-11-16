@@ -1,11 +1,12 @@
 from django.db import models
-
 from info.models import Material
 from shared.models import BaseModel
-from .services import validate_movement_outgoing, process_incoming, validate_outgoing, validate_incoming
+from .services import validate_movement_outgoing, validate_outgoing, validate_incoming, process_incoming
 
 
 class Outgoing(BaseModel):
+    ACCEPT, REJECT, IN_PROGRESS = ('Принят', 'Отклонен', 'В ожидании')
+
     OUTGO, SALE, MOVEMENT = ('расход', 'продажа', 'перемешения')
 
     OUTGOING_TYPE = (
@@ -13,6 +14,13 @@ class Outgoing(BaseModel):
         (SALE, SALE),
         (MOVEMENT, MOVEMENT)
     )
+
+    OUTGOING_STATUS = (
+        (ACCEPT, ACCEPT),
+        (REJECT, REJECT),
+        (IN_PROGRESS, IN_PROGRESS)
+    )
+
     code = models.CharField(max_length=10, unique=True, editable=False)
     data = models.DateField(editable=True)
     type = models.CharField(choices=OUTGOING_TYPE, default=MOVEMENT)
@@ -20,6 +28,7 @@ class Outgoing(BaseModel):
     warehouse = models.ForeignKey('info.Warehouse', on_delete=models.CASCADE, related_name='outgoing_warehouse')
     to_warehouse = models.ForeignKey('info.Warehouse', on_delete=models.CASCADE, null=True, blank=True,
                                      related_name='outgoing_to_warehouse')
+    status = models.CharField(choices=OUTGOING_STATUS, default=IN_PROGRESS, null=True, blank=True)
     note = models.CharField(max_length=250, null=True, blank=True)
 
     def save(self, *args, **kwargs):
@@ -35,6 +44,7 @@ class Outgoing(BaseModel):
         super().save(*args, **kwargs)
 
     def clean(self):
+
         validate_outgoing(self)
 
         if self.type == self.MOVEMENT:
@@ -47,14 +57,6 @@ class Outgoing(BaseModel):
 
 
 class Incoming(BaseModel):
-    ACCEPT, REJECT, IN_PROGRESS = ('Принят', 'Отклонен', 'В ожидании')
-
-    INCOMING_STATUS = (
-        (ACCEPT, ACCEPT),
-        (REJECT, REJECT),
-        (IN_PROGRESS, IN_PROGRESS)
-    )
-
     MOVEMENT, INVOICE = ('Перемешения', 'По накладной')
 
     INCOMING_TYPE = (
@@ -71,7 +73,6 @@ class Incoming(BaseModel):
     outgoing = models.ForeignKey(Outgoing, on_delete=models.CASCADE, null=True, blank=True)
     purchase = models.ForeignKey('purchase.Purchase', on_delete=models.SET_NULL, null=True, blank=True)
     note = models.CharField(max_length=250, null=True, blank=True)
-    status = models.CharField(choices=INCOMING_STATUS, default=None, null=True, blank=True)
     type = models.CharField(choices=INCOMING_TYPE, null=True, blank=True)
 
     def save(self, *args, **kwargs):
@@ -102,7 +103,7 @@ class IncomingMaterial(models.Model):
 
 
 class OutgoingMaterial(models.Model):
-    outgoing = models.ForeignKey(Outgoing, on_delete=models.CASCADE)
+    outgoing = models.ForeignKey(Outgoing, on_delete=models.CASCADE, related_name='outgoing_materials')
     material = models.ForeignKey('info.Material', on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     color = models.CharField(max_length=150, null=True, blank=True)
@@ -112,16 +113,15 @@ class OutgoingMaterial(models.Model):
 
 class Stock(models.Model):
     material = models.ForeignKey('info.Material', on_delete=models.CASCADE)
+    material_party = models.ForeignKey('info.MaterialParty', on_delete=models.CASCADE, null=True, blank=True)
     warehouse = models.ForeignKey('info.Warehouse', on_delete=models.CASCADE)
     amount = models.PositiveIntegerField(default=0)
 
-    def spend(self, amount, use_negative=False):
-        if use_negative or self.amount >= amount:
-            self.amount -= amount
-            self.save()
-            return True
-        else:
-            return False
+    def save(self, *args, **kwargs):
+        if self.material and not self.material_party:
+            self.material_party = self.material.material_party
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.material} в {self.warehouse} ({self.amount} шт.)"

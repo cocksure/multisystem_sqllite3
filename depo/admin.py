@@ -12,10 +12,6 @@ class OutgoingAdmin(admin.ModelAdmin):
     list_per_page = 100
     date_hierarchy = 'created_time'
 
-    def save_model(self, request, obj, form, change):
-        obj.update_stock()
-
-        super().save_model(request, obj, form, change)
 @admin.register(models.OutgoingMaterial)
 class OutgoingMaterialAdmin(admin.ModelAdmin):
     list_display = ('outgoing', 'material', 'amount', 'color', 'material_party',)
