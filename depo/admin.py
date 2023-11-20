@@ -1,26 +1,26 @@
 from django.contrib import admin
-from depo import models
+from depo.models import outgoing, incoming, stock
 
 
-@admin.register(models.Outgoing)
+@admin.register(outgoing.Outgoing)
 class OutgoingAdmin(admin.ModelAdmin):
-    list_display = ('code', 'warehouse', 'to_warehouse', 'type', 'data',)
-    list_filter = ('type', 'warehouse',)
+    list_display = ('code', 'warehouse', 'to_warehouse', 'outgoing_type', 'data',)
+    list_filter = ('outgoing_type', 'warehouse',)
     search_fields = ('code',)
-    fields = ('data', 'type', 'warehouse', 'to_warehouse', 'note', 'created_by', 'updated_by',
+    fields = ('data', 'outgoing_type', 'warehouse', 'to_warehouse', 'note', 'created_by', 'updated_by',
               'created_time', 'updated_time')
     list_per_page = 100
     date_hierarchy = 'created_time'
 
-@admin.register(models.OutgoingMaterial)
+
+@admin.register(outgoing.OutgoingMaterial)
 class OutgoingMaterialAdmin(admin.ModelAdmin):
     list_display = ('outgoing', 'material', 'amount', 'color', 'material_party',)
     search_fields = ('material', 'material_party')
     list_per_page = 100
 
 
-
-@admin.register(models.Incoming)
+@admin.register(incoming.Incoming)
 class IncomingAdmin(admin.ModelAdmin):
     list_display = ('warehouse', 'from_warehouse', 'outgoing', 'data',)
     list_filter = ('warehouse',)
@@ -29,7 +29,7 @@ class IncomingAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_time'
 
 
-@admin.register(models.IncomingMaterial)
+@admin.register(incoming.IncomingMaterial)
 class IncomingDetailAdmin(admin.ModelAdmin):
     list_display = ('incoming', 'material', 'amount', 'color', 'material_party',)
     search_fields = ('material', 'material_party')
@@ -37,7 +37,7 @@ class IncomingDetailAdmin(admin.ModelAdmin):
     fields = ('incoming', 'material', 'amount', 'color', 'material_party',)
 
 
-@admin.register(models.Stock)
+@admin.register(stock.Stock)
 class StockAdmin(admin.ModelAdmin):
     list_display = ('warehouse', 'material', 'amount')
     search_fields = ('material',)

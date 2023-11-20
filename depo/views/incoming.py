@@ -4,13 +4,14 @@ from rest_framework import status, generics
 from rest_framework.response import Response
 
 from depo import serializers, models
-from depo.models import Stock
+from depo.models.incoming import Incoming, IncomingMaterial
+from depo.models.stock import Stock
 from shared.views import BaseListView
 
 
 # ---------------------------------------------------------------------------------------
 class IncomingCreateView(generics.CreateAPIView):
-    queryset = models.Incoming.objects.all()
+    queryset = Incoming.objects.all()
     serializer_class = serializers.IncomingSerializer
 
     @transaction.atomic
@@ -51,7 +52,7 @@ class IncomingCreateView(generics.CreateAPIView):
 
 # ---------------------------------------------------------------------------------------
 class IncomingListView(BaseListView):
-    queryset = models.Incoming.objects.all()
+    queryset = Incoming.objects.all()
     serializer_class = serializers.IncomingSerializer
     filterset_fields = ['warehouse']
     search_fields = ['code']
@@ -59,14 +60,14 @@ class IncomingListView(BaseListView):
 
 # ---------------------------------------------------------------------------------------
 class IncomingMaterialListView(generics.ListAPIView):
-    queryset = models.IncomingMaterial.objects.all()
+    queryset = IncomingMaterial.objects.all()
     serializer_class = serializers.IncomingMaterialSerializer
 
 
 # ---------------------------------------------------------------------------------------
 
 class IncomingDetailView(generics.RetrieveAPIView):
-    queryset = models.Incoming.objects.all()
+    queryset = Incoming.objects.all()
     serializer_class = serializers.IncomingSerializer
 
     def retrieve(self, request, *args, **kwargs):
@@ -75,7 +76,7 @@ class IncomingDetailView(generics.RetrieveAPIView):
 
         data = serializer.data
 
-        incoming_materials = models.IncomingMaterial.objects.filter(incoming=instance)
+        incoming_materials = IncomingMaterial.objects.filter(incoming=instance)
         incoming_material_serializer = serializers.IncomingMaterialSerializer(incoming_materials, many=True)
 
         data['incoming_materials'] = incoming_material_serializer.data

@@ -1,13 +1,14 @@
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 
-from depo import models, serializers
+from depo import serializers
+from depo.models.outgoing import OutgoingMaterial, Outgoing
+from depo.models.stock import Stock
 from shared.utils import CustomPagination
 from shared.views import BaseListView
 
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from depo.models import Stock, OutgoingMaterial, Outgoing
 from depo.serializers import StockSerializer, OutgoingMaterialSerializer, OutgoingSerializer
 
 
@@ -21,7 +22,6 @@ class StockListView(BaseListView):
 
     @action(detail=True, methods=['get'])
     def transactions(self, request, pk=None):
-        # Проверка прав доступа
         stock = self.get_object()
         self.check_object_permissions(self.request, stock)
 
@@ -41,7 +41,7 @@ class StockListView(BaseListView):
 
 # ----------------------------------------------------------------------------------------
 class StockDetailView(generics.RetrieveAPIView):
-    queryset = models.Stock.objects.all()
+    queryset = Stock.objects.all()
     serializer_class = serializers.StockSerializer
 
 

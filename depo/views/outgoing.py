@@ -3,15 +3,16 @@ from django.db import transaction
 from rest_framework import status, generics
 from rest_framework.response import Response
 
-from depo import serializers, models
-from depo.models import Stock
+from depo import serializers
+from depo.models.outgoing import Outgoing, OutgoingMaterial
+from depo.models.stock import Stock
 from info.models import Warehouse
 from shared.views import BaseListView
 
 
 # ---------------------------------------------------------------------------------------
 class OutgoingCreateView(generics.CreateAPIView):
-    queryset = models.Outgoing.objects.all()
+    queryset = Outgoing.objects.all()
     serializer_class = serializers.OutgoingSerializer
 
     def create(self, request, *args, **kwargs):
@@ -21,6 +22,7 @@ class OutgoingCreateView(generics.CreateAPIView):
         outgoing_serializer = self.get_serializer(data=outgoing_data)
         outgoing_serializer.is_valid(raise_exception=True)
         outgoing = outgoing_serializer.save()
+
         for item in outgoing_material_data:
             item['outgoing'] = outgoing.id
 
@@ -34,23 +36,14 @@ class OutgoingCreateView(generics.CreateAPIView):
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         with transaction.atomic():
-            use_negative = request.data.get('use_negative', False)
             for item in outgoing_material_data:
                 material = item['material']
                 amount = item['amount']
                 warehouse_id = outgoing_data.get('warehouse')
-                warehouse = Warehouse.objects.get(pk=warehouse_id)
 
-                warehouse_use_negative = warehouse.use_negative
-
-                stock, created = Stock.objects.get_or_create(material=material, warehouse=warehouse)
-                stock.use_negative = use_negative
-
-                if warehouse_use_negative or (stock.amount >= amount) or use_negative:
-                    stock.amount -= amount
-                    stock.save()
-                else:
-                    return Response({'detail': 'Not enough stock available.'}, status=status.HTTP_400_BAD_REQUEST)
+                stock, created = Stock.objects.get_or_create(material=material, warehouse=outgoing.warehouse)
+                stock.amount -= amount
+                stock.save()
 
         headers = self.get_success_headers(outgoing_serializer.data)
         return Response(outgoing_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -58,7 +51,7 @@ class OutgoingCreateView(generics.CreateAPIView):
 
 # ---------------------------------------------------------------------------------------
 class OutgoingListView(BaseListView):
-    queryset = models.Outgoing.objects.all()
+    queryset = Outgoing.objects.all()
     serializer_class = serializers.OutgoingSerializer
     filterset_fields = ['warehouse', 'type']
     search_fields = ['code']
@@ -67,14 +60,14 @@ class OutgoingListView(BaseListView):
 # ---------------------------------------------------------------------------------------
 
 class OutgoingMaterialListView(generics.ListAPIView):
-    queryset = models.OutgoingMaterial.objects.all()
+    queryset = OutgoingMaterial.objects.all()
     serializer_class = serializers.OutgoingMaterialSerializer
 
 
 # ---------------------------------------------------------------------------------------
 
 class OutgoingDetailView(generics.RetrieveAPIView):
-    queryset = models.Outgoing.objects.all()
+    queryset = Outgoing.objects.all()
     serializer_class = serializers.OutgoingSerializer
 
     def retrieve(self, request, *args, **kwargs):
@@ -83,7 +76,7 @@ class OutgoingDetailView(generics.RetrieveAPIView):
 
         data = serializer.data
 
-        outgoing_materials = models.OutgoingMaterial.objects.filter(outgoing=instance)
+        outgoing_materials = OutgoingMaterial.objects.filter(outgoing=instance)
         outgoing_material_serializer = serializers.OutgoingMaterialSerializer(outgoing_materials, many=True)
 
         data['outgoing_materials'] = outgoing_material_serializer.data

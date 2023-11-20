@@ -1,12 +1,13 @@
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 from django.db.models import F
-from .models import IncomingMaterial, OutgoingMaterial, Stock, Outgoing
+from .models import incoming, outgoing, stock
 
 
-@receiver(pre_save, sender=Outgoing)
+@receiver(pre_save, sender=outgoing.Outgoing)
 def set_outgoing_status(sender, instance, **kwargs):
-    if instance.type == 'перемешения':
+    # Проверяем, был ли установлен type в значение "перемешения"
+    if instance.outgoing_type == 'перемешения':
         instance.status = 'В ожидании'
     else:
         instance.status = 'Принят'
