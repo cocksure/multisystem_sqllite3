@@ -48,9 +48,9 @@ def process_incoming(incoming):
 
 def validate_incoming(instance):
     if instance.warehouse and not instance.warehouse.can_import:
-        raise ValidationError('Невозможно создать приход для склада, который не может импортировать.')
+        raise DRFValidationError('Невозможно создать приход для склада, который не может импортировать.')
     if instance.warehouse and not instance.warehouse.is_active:
-        raise ValidationError("Невозможно создать приход для неактивного склада.")
+        raise DRFValidationError("Невозможно создать приход для неактивного склада.")
 
     if instance.type == 'По накладной' and not instance.invoice:
-        raise ValidationError('Необходимо указать номер инвойса.')
+        raise DRFValidationError('Необходимо указать номер инвойса.')

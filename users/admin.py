@@ -16,7 +16,7 @@ admin.site.unregister(SocialAccount)
 
 @admin.register(models.CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'username', 'first_name', 'last_name',)
+    list_display = ('username', 'first_name', 'last_name',)
     search_fields = ('id', 'username', 'first_name', 'last_name',)
     list_per_page = 100
 

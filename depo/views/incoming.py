@@ -6,27 +6,27 @@ from rest_framework.response import Response
 from depo import serializers, models
 from depo.models.incoming import Incoming, IncomingMaterial
 from depo.models.stock import Stock
+from depo.serializers import IncomingSerializer, IncomingMaterialSerializer
 from shared.views import BaseListView
 
 
 # ---------------------------------------------------------------------------------------
 class IncomingCreateView(generics.CreateAPIView):
     queryset = Incoming.objects.all()
-    serializer_class = serializers.IncomingSerializer
+    serializer_class = IncomingSerializer
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        incoming_data = request.data
+        incoming_data = request.data.copy()
         incoming_material_data = incoming_data.pop('incoming_materials', [])
 
         incoming_serializer = self.get_serializer(data=incoming_data)
         incoming_serializer.is_valid(raise_exception=True)
+
         incoming = incoming_serializer.save()
 
-        for item in incoming_material_data:
-            item['incoming'] = incoming.id
-
-        incoming_material_serializer = serializers.IncomingMaterialSerializer(data=incoming_material_data, many=True)
+        incoming_material_data = [{'incoming': incoming.id, **item} for item in incoming_material_data]
+        incoming_material_serializer = IncomingMaterialSerializer(data=incoming_material_data, many=True)
         if incoming_material_serializer.is_valid():
             incoming_material_serializer.save()
 

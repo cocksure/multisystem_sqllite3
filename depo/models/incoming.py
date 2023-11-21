@@ -6,14 +6,15 @@ from shared.models import BaseModel
 
 
 class Incoming(BaseModel):
-    MOVEMENT, INVOICE = ('Перемешения', 'По накладной')
+    MOVEMENT = 'Перемешения'
+    INVOICE = 'По накладной'
 
-    INCOMING_TYPE = (
-        (MOVEMENT, MOVEMENT),
-        (INVOICE, INVOICE)
-    )
+    INCOMING_TYPE = [
+        (MOVEMENT, 'Перемешения'),
+        (INVOICE, 'По накладной'),
+    ]
 
-    data = models.DateField(auto_now_add=True)
+    data = models.DateField(editable=True)
     warehouse = models.ForeignKey('info.Warehouse', on_delete=models.CASCADE, related_name='incoming_warehouse')
     from_warehouse = models.ForeignKey('info.Warehouse', on_delete=models.CASCADE, null=True, blank=True,
                                        related_name='incoming_from_warehouse')
