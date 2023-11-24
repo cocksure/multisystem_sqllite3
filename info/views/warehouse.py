@@ -10,3 +10,9 @@ class WarehouseViewSetView(viewsets.ModelViewSet):
     filterset_fields = ['name']
     search_fields = ['code', 'name']
     pagination_class = CustomPagination
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)

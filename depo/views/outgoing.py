@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.utils import timezone
 from rest_framework import status, generics
 from rest_framework.response import Response
 
@@ -19,6 +20,9 @@ class OutgoingCreateView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         outgoing_data = request.data.copy()
         outgoing_material_data = outgoing_data.pop('outgoing_materials', [])
+
+        outgoing_data['created_by'] = request.user.id if request.user.is_authenticated else None
+        outgoing_data['data'] = timezone.now().date()
 
         outgoing_serializer = self.get_serializer(data=outgoing_data)
         outgoing_serializer.is_valid(raise_exception=True)

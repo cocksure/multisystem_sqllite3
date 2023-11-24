@@ -26,6 +26,12 @@ class FirmViewSetView(viewsets.ModelViewSet):
     search_fields = ['code', 'name']
     pagination_class = CustomPagination
 
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(udated_by=self.request.user)
+
 
 class DeviceViewSetView(viewsets.ModelViewSet):
     queryset = models.Device.objects.all()
@@ -53,4 +59,3 @@ class BrandViewSetView(viewsets.ModelViewSet):
     serializer_class = infos.BrandSerializer
     search_fields = ['name']
     pagination_class = CustomPagination
-

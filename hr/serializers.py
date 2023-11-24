@@ -8,18 +8,11 @@ class DivisionSerializer(ModelSerializer):
         model = models.Division
         fields = ('id', 'name')
 
-class DepartmentSerializer(ModelSerializer):
 
+class DepartmentSerializer(ModelSerializer):
     class Meta:
         model = models.Department
-        fields = ('__all__')
-
-    def validate(self, attrs):
-        name = attrs.get('name')
-
-        if name.exist():
-            raise serializers.ValidationError("Такой отдел уже есть")
-
+        fields = '__all__'
 
 
 class PositionSerializer(ModelSerializer):

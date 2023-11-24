@@ -13,14 +13,25 @@ class UnitAdmin(admin.ModelAdmin):
 
 @admin.register(models.Firm)
 class FirmAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'type', 'phone_number', 'code', 'agent', 'created_by', 'created_time')
+    list_display = ('name', 'type', 'phone_number', 'code', 'agent', 'created_by', 'created_time')
     search_fields = ('code', 'name')
     list_filter = ('type',)
     list_per_page = 100
     date_hierarchy = 'created_time'
-    fields = (
-        'code', 'name', 'type', 'legal_address', 'actual_address', 'phone_number', 'fax_machine', 'license_number',
-        'agent', 'created_by', 'updated_by', 'created_time', 'updated_time')
+    readonly_fields = (
+        'created_time', 'updated_time', 'created_by', 'updated_by')
+    fieldsets = (
+        ('Basic Information', {
+            'fields': (
+                'code', 'name', 'type', 'legal_address', 'actual_address', 'phone_number', 'fax_machine',
+                'license_number',
+                'agent',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_time', 'created_by', 'updated_time', 'updated_by'),
+            'classes': ('collapse',),
+        }),
+    )
 
 
 @admin.register(models.MaterialGroup)
@@ -41,13 +52,26 @@ class MaterialTypeAdmin(admin.ModelAdmin):
 
 @admin.register(models.Material)
 class MaterialAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ('code', 'name', 'group', 'type', 'unit')
+    list_display = ('name', 'code', 'group', 'type', 'unit')
     search_fields = ('code', 'name', 'group__name', 'type__name', 'unit__name')
     list_filter = ('group', 'type', 'unit')
     list_per_page = 100
     date_hierarchy = 'created_time'
-    fields = ('code', 'name', 'group', 'type', 'unit', 'color', 'material_party', 'weight', 'size_and_shape', 'warranty',
-              'photo', 'created_by', 'updated_by', 'created_time', 'updated_time')
+    readonly_fields = ('created_time', 'updated_time')
+
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('code', 'name', 'group', 'type', 'unit', 'color', 'photo', 'price', 'weight')
+        }),
+        ('Additional Information', {
+            'fields': ( 'warranty', 'size_and_shape', 'material_party', 'note',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_time', 'created_by', 'updated_time', 'updated_by'),
+            'classes': ('collapse',),
+        }),
+    )
+
     resource_class = MaterialResource
 
 
@@ -65,9 +89,18 @@ class WarehouseAdmin(admin.ModelAdmin):
     list_filter = ('can_import', 'can_export', 'use_negative', 'is_active')
     list_per_page = 100
     date_hierarchy = 'created_time'
-    fields = (
-        'code', 'name', 'location', 'can_import', 'can_export', 'use_negative', 'is_active', 'created_by', 'updated_by',
-        'created_time', 'updated_time')
+    readonly_fields = ('created_time', 'updated_time')
+
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('code', 'name', 'location', 'can_import', 'can_export', 'use_negative', 'is_active')
+        }),
+
+        ('Timestamps', {
+            'fields': ('created_time', 'created_by', 'updated_time', 'updated_by'),
+            'classes': ('collapse',),
+        }),
+    )
 
 
 @admin.register(models.Device)
@@ -76,7 +109,8 @@ class DeviceAdmin(admin.ModelAdmin):
     search_fields = ('agent', 'imei')
     list_per_page = 100
     date_hierarchy = 'created_time'
-    fields = ('agent', 'imei', 'comment', 'created_by', 'updated_by',  'created_time', 'updated_time')
+    readonly_fields = ('created_time', 'updated_time')
+    fields = ('agent', 'imei', 'comment', 'created_by', 'updated_by', )
 
 
 @admin.register(models.Currency)

@@ -34,6 +34,7 @@ urlpatterns = [
     path('api/rest-auth/registration', include('dj_rest_auth.registration.urls')),
 
 
+
     # swagger
     path('swagger/', schema_view.with_ui(
         'swagger', cache_timeout=0), name='swagger-swagger-ui')
