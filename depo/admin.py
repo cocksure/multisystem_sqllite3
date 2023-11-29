@@ -29,9 +29,9 @@ class OutgoingMaterialAdmin(admin.ModelAdmin):
 class IncomingAdmin(admin.ModelAdmin):
     list_display = ('warehouse', 'from_warehouse', 'outgoing', 'data',)
     fields = (
-        'data', 'warehouse', 'from_warehouse', 'type', 'invoice', 'contract_number', 'outgoing', 'purchase',
-        'note', 'created_time', 'updated_time', 'created_by', 'updated_by', )
-    readonly_fields = ('type', 'created_time', 'updated_time')
+        'data', 'warehouse', 'from_warehouse', 'incoming_type', 'invoice', 'contract_number', 'outgoing', 'purchase',
+        'note', 'created_time', 'updated_time', 'created_by', 'updated_by',)
+    readonly_fields = ('incoming_type', 'created_time', 'updated_time')
     list_filter = ('warehouse',)
     search_fields = ('code',)
     list_per_page = 100
@@ -50,19 +50,11 @@ class IncomingDetailAdmin(admin.ModelAdmin):
 
 @admin.register(stock.Stock)
 class StockAdmin(admin.ModelAdmin):
-    list_display = ('warehouse', 'material_name', 'amount', 'unit_name', 'material_party', 'material_color', 'material_price')
+    list_display = ('warehouse', 'material_name', 'amount')
     search_fields = ('material__name',)
     list_filter = ('warehouse',)
     list_per_page = 100
 
-    def material_name(self, obj):
+    @staticmethod
+    def material_name(obj):
         return obj.material.name if obj.material else ''
-
-    def unit_name(self, obj):
-        return obj.material.unit.name if obj.material and obj.material.unit else ''
-
-    def material_color(self, obj):
-        return obj.material.color if obj.material and obj.material.color else ''
-
-    def material_price(self, obj):
-        return obj.material.price if obj.material and obj.material.price else ''

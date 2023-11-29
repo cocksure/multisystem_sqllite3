@@ -1,4 +1,4 @@
-from django.db.models.signals import post_delete, post_save, pre_save
+from django.db.models.signals import post_delete, pre_save
 from django.dispatch import receiver
 from django.db.models import F
 from .models import outgoing
@@ -9,10 +9,11 @@ from .models.stock import Stock
 
 @receiver(pre_save, sender=outgoing.Outgoing)
 def set_outgoing_status(sender, instance, **kwargs):
-    if instance.outgoing_type == 'перемешения':
-        instance.status = 'В ожидании'
-    else:
-        instance.status = 'Принят'
+    if not hasattr(instance, '_skip_signal'):
+        if instance.outgoing_type == 'перемешения':
+            instance.status = 'В ожидании'
+        else:
+            instance.status = 'Принят'
 
 
 # -----------------------------------INCOMING start--------------------------------------------------------------------
@@ -35,6 +36,5 @@ def update_stock_after_OutgoingMaterial_deletion(sender, instance, **kwargs):
     warehouse = instance.outgoing.warehouse if hasattr(instance, 'outgoing') else None
     if warehouse:
         Stock.objects.filter(material=material, warehouse=warehouse).update(amount=F('amount') + instance.amount)
-
 
 # -----------------------------------OUTGOING finish--------------------------------------------------------------------

@@ -16,6 +16,6 @@ urlpatterns = [
     path('stock-detail/<int:pk>/', stock.StockDetailView.as_view(), name='stock-detail'),
 
     path('unaccepted-materials/', stock.UnacceptedMaterialsListView.as_view(), name='unaccepted-materials-list'),
-    path('unaccepted-materials/<int:pk>/', stock.UnacceptedMaterialsDetailView.as_view(),
+    path('unaccepted-materials/<int:outgoing_id>/', stock.UnacceptedMaterialsDetailView.as_view(),
          name='unaccepted-material-detail'),
 ]

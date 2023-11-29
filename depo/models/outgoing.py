@@ -59,3 +59,6 @@ class OutgoingMaterial(models.Model):
     color = models.CharField(max_length=150, null=True, blank=True)
     material_party = models.ForeignKey('info.MaterialParty', on_delete=models.CASCADE)
     comment = models.TextField(max_length=1000, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.material} {self.amount}"

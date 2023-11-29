@@ -15,15 +15,15 @@ class Incoming(BaseModel):
     ]
 
     data = models.DateField(editable=True)
-    warehouse = models.ForeignKey('info.Warehouse', on_delete=models.CASCADE, related_name='incoming_warehouse')
+    warehouse = models.ForeignKey('info.Warehouse', on_delete=models.PROTECT, related_name='incoming_warehouse')
     from_warehouse = models.ForeignKey('info.Warehouse', on_delete=models.CASCADE, null=True, blank=True,
                                        related_name='incoming_from_warehouse')
     invoice = models.CharField(max_length=150, null=True, blank=True)
     contract_number = models.CharField(max_length=150, null=True, blank=True)
-    outgoing = models.ForeignKey(Outgoing, on_delete=models.CASCADE, null=True, blank=True)
+    outgoing = models.ForeignKey(Outgoing, on_delete=models.PROTECT, null=True, blank=True)
     purchase = models.ForeignKey('purchase.Purchase', on_delete=models.SET_NULL, null=True, blank=True)
     note = models.CharField(max_length=250, null=True, blank=True)
-    type = models.CharField(choices=INCOMING_TYPE, null=True, blank=True)
+    incoming_type = models.CharField(choices=INCOMING_TYPE, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         process_incoming(self)

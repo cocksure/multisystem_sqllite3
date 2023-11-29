@@ -1,4 +1,3 @@
-from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 from rest_framework import status, generics
@@ -34,21 +33,17 @@ class OutgoingCreateView(generics.CreateAPIView):
         if outgoing_material_serializer.is_valid():
             outgoing_material_serializer.save()
 
+            stocks_to_update = []
             for item in outgoing_material_data:
                 material = item['material']
                 amount = item['amount']
                 warehouse = outgoing.warehouse
 
                 stock, created = Stock.objects.get_or_create(material=material, warehouse=warehouse)
-                if created:
-                    stock.amount = 0
-                stock.amount -= amount
-                stock.save()
+                stock.amount -= amount  # Adjusted for Outgoing
+                stocks_to_update.append(stock)
 
-            try:
-                outgoing.full_clean()
-            except ValidationError as e:
-                return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            Stock.objects.bulk_update(stocks_to_update, ['amount'])
 
             headers = self.get_success_headers(outgoing_serializer.data)
             return Response(outgoing_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -60,7 +55,7 @@ class OutgoingCreateView(generics.CreateAPIView):
 class OutgoingListView(BaseListView):
     queryset = Outgoing.objects.all()
     serializer_class = serializers.OutgoingSerializer
-    filterset_fields = ['warehouse', 'type']
+    filterset_fields = ['warehouse', 'outgoing_type', 'status']
     search_fields = ['code']
 
 

@@ -41,9 +41,9 @@ def validate_use_negative(outgoing, outgoing_material_data):
 
 def process_incoming(incoming):
     if incoming.from_warehouse:
-        incoming.type = 'Перемешения'
+        incoming.incoming_type = 'Перемешения'
     else:
-        incoming.type = 'По накладной'
+        incoming.incoming_type = 'По накладной'
 
 
 def validate_incoming(instance):
@@ -52,5 +52,5 @@ def validate_incoming(instance):
     if instance.warehouse and not instance.warehouse.is_active:
         raise DRFValidationError("Невозможно создать приход для неактивного склада.")
 
-    if instance.type == 'По накладной' and not instance.invoice:
+    if instance.incoming_type == 'По накладной' and not instance.invoice:
         raise DRFValidationError('Необходимо указать номер инвойса.')

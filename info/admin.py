@@ -64,7 +64,7 @@ class MaterialAdmin(ImportExportModelAdmin, admin.ModelAdmin):
             'fields': ('code', 'name', 'group', 'type', 'unit', 'color', 'photo', 'price', 'weight')
         }),
         ('Additional Information', {
-            'fields': ( 'warranty', 'size_and_shape', 'material_party', 'note',)
+            'fields': ('warranty', 'size_and_shape', 'note',)
         }),
         ('Timestamps', {
             'fields': ('created_time', 'created_by', 'updated_time', 'updated_by'),
@@ -110,7 +110,7 @@ class DeviceAdmin(admin.ModelAdmin):
     list_per_page = 100
     date_hierarchy = 'created_time'
     readonly_fields = ('created_time', 'updated_time')
-    fields = ('agent', 'imei', 'comment', 'created_by', 'updated_by', )
+    fields = ('agent', 'imei', 'comment', 'created_by', 'updated_by',)
 
 
 @admin.register(models.Currency)
@@ -129,3 +129,13 @@ class BrandAdmin(admin.ModelAdmin):
     list_per_page = 100
     date_hierarchy = 'created_time'
     fields = ('name', 'created_by', 'updated_by', 'created_time', 'updated_time')
+
+
+@admin.register(models.Specification)
+class SpecificationAdmin(admin.ModelAdmin):
+    list_display = ('name', 'year', 'firm')
+    search_fields = ('id', 'name', 'firm')
+    list_per_page = 100
+    date_hierarchy = 'created_time'
+    readonly_fields = ('created_time', 'updated_time')
+    fields = ('name', 'year', 'firm', 'created_by', 'updated_by',)

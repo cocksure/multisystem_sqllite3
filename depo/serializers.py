@@ -67,29 +67,26 @@ class IncomingMaterialSerializer(ModelSerializer):
         fields = '__all__'
 
 
-class IncomingSerializer(ModelSerializer):
+class IncomingSerializer(serializers.ModelSerializer):
+    incoming_materials = serializers.SerializerMethodField()
+
     class Meta:
         model = Incoming
         fields = '__all__'
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-
+    def get_incoming_materials(self, instance):
         incoming_materials = IncomingMaterial.objects.filter(incoming=instance)
-        incoming_materials_data = IncomingMaterialSerializer(incoming_materials, many=True).data
-        data['incoming_materials'] = incoming_materials_data
-
-        return data
+        return IncomingMaterialSerializer(incoming_materials, many=True).data
 
     def validate(self, data):
         from_warehouse = data.get('from_warehouse')
 
         if from_warehouse:
-            data['type'] = 'Перемешения'
+            data['incoming_type'] = 'Перемешения'
         else:
-            data['type'] = 'По накладной'
+            data['incoming_type'] = 'По накладной'
 
-        incoming_type = data.get('type')
+        incoming_type = data.get('incoming_type')
         invoice = data.get('invoice')
 
         if incoming_type == 'По накладной' and not invoice:
@@ -107,4 +104,4 @@ class StockSerializer(ModelSerializer):
     class Meta:
         model = Stock
         fields = ['id', 'warehouse', 'material_name', 'material_group',
-                  'material_party', 'material_unit', 'material_color', 'amount']
+                  'material_unit', 'material_color', 'amount']

@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone
 
 from shared.models import BaseModel
 
@@ -14,32 +13,20 @@ PURCHASE_STATUS = (
 )
 
 
-class Purchase(BaseModel):
-    data = models.DateTimeField(auto_now_add=True)
-    department = models.ForeignKey('hr.Department', on_delete=models.CASCADE)
-    warehouse = models.ForeignKey('info.Warehouse', on_delete=models.CASCADE)
-    requester = models.ForeignKey('hr.Employee', on_delete=models.SET_NULL, null=True)
-    arrival_date = models.DateField(editable=True)
-    status = models.CharField(choices=PURCHASE_STATUS, default='new')
-    note = models.TextField(max_length=1000, null=True, blank=True)
-
-    def __str__(self):
-        return self.id
-
-
 class PurchaseProduct(models.Model):
-    purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE)
+    purchase = models.ForeignKey('purchase.Purchase', on_delete=models.CASCADE)
     material = models.ForeignKey('info.Material', on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     color = models.CharField(max_length=100, null=True, blank=True)
-    specification = models.ForeignKey('info.Specification', on_delete=models.SET_NULL, null=True)
-    signed_by = models.ForeignKey('users.CustomUser', on_delete=models.SET_NULL, null=True,
+    specification = models.ForeignKey('info.Specification', on_delete=models.SET_NULL, null=True, blank=True, )
+    signed_by = models.ForeignKey('users.CustomUser', on_delete=models.SET_NULL, null=True, blank=True,
                                   related_name='signed_purchaseproducts')
-    signed_at = models.DateTimeField(default=timezone.now, editable=True)
+    signed_at = models.DateTimeField(editable=True, null=True, blank=True, )
     rejected_by = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE, blank=True, null=True,
                                     related_name='rejected_purchaseproducts')
-    rejected_at = models.DateTimeField(default=timezone.now, editable=True)
-    distributed_at = models.DateTimeField(default=timezone.now, editable=True)
-    accepted_at = models.DateTimeField(default=timezone.now, editable=True)
+    rejected_at = models.DateTimeField(editable=True, null=True, blank=True, )
+    distributed_at = models.DateTimeField(editable=True, null=True, blank=True, )
+    accepted_at = models.DateTimeField(editable=True, null=True, blank=True, )
     status = models.CharField(choices=PURCHASE_STATUS, default='new')
 
     def purchase_status_validate(self):
@@ -53,4 +40,29 @@ class PurchaseProduct(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.material
+        return str(self.id)
+
+
+class Purchase(BaseModel):
+    data = models.DateTimeField(auto_now_add=True)
+    department = models.ForeignKey('hr.Department', on_delete=models.CASCADE)
+    warehouse = models.ForeignKey('info.Warehouse', on_delete=models.CASCADE)
+    requester = models.ForeignKey('hr.Employee', on_delete=models.SET_NULL, null=True)
+    arrival_date = models.DateField(editable=True)
+    status = models.CharField(choices=PURCHASE_STATUS, default='new')
+    note = models.TextField(max_length=1000, null=True, blank=True)
+
+    def update_purchase_status(self):
+        purchase_products = models.PurchaseProduct.objects.filter(purchase=self)
+
+        if all(product.status == 'accepted' for product in purchase_products):
+            self.status = 'confirmed'
+        elif any(product.status == 'rejected' for product in purchase_products):
+            self.status = 'rejected'
+        else:
+            self.status = 'new'
+
+        self.save()
+
+    def __str__(self):
+        return str(self.id)

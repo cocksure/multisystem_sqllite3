@@ -1,11 +1,13 @@
 from django.urls import path
 from . import views
 
-urlpatterns = [
-    path('purchases/', views.PurchaseListCreateView.as_view(), name='purchase-list'),
-    path('purchases/<int:pk>/', views.PurchaseDetailUpdateDeleteView.as_view(), name='purchase-detail'),
+app_name = 'purchase'
 
-    path('purchase-products/', views.PurchaseProductListCreateView.as_view(), name='purchase-product-list'),
-    path('purchase-products/<int:pk>/', views.PurchaseProductUpdateDeleteView.as_view(),
-         name='purchase-product-detail'),
+urlpatterns = [
+    path('', views.PurchaseListView.as_view(), name='purchase-list'),
+    path('create/', views.PurchaseCreateView.as_view(), name='purchase-create'),
+    path('<int:pk>/', views.PurchaseDetailView.as_view(), name='purchase-detail'),
+    path('confirm/<int:pk>/', views.PurchaseConfirmationView.as_view(), name='purchase-confirm'),
+    path('distribute/<int:pk>/', views.PurchaseDistributionView.as_view(), name='purchase-distribute'),
+
 ]

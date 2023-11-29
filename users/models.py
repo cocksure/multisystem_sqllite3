@@ -8,6 +8,7 @@ class CustomUser(AbstractUser, PermissionsMixin):
                                       blank=True, validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg',
                                                                                                          'png', 'heir',
                                                                                                          'heif'])])
+    can_sign_purchase = models.BooleanField(default=False)
 
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"

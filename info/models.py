@@ -17,10 +17,13 @@ class Unit(models.Model):
         return self.name
 
 
-class Specification(models.Model):
+class Specification(BaseModel):
     year = models.CharField(max_length=4)
     name = models.CharField(max_length=100)
     firm = models.ForeignKey('info.Firm', on_delete=models.SET_NULL, null=True, blank=True, default=None)
+
+    def __str__(self):
+        return self.name
 
 
 class Firm(BaseModel):
@@ -79,7 +82,7 @@ class MaterialParty(BaseModel):
     code = models.CharField(max_length=10, unique=True, null=True, blank=True)
 
     def __str__(self):
-        return self.code
+        return f'{self.code}'
 
 
 class Material(BaseModel):
@@ -96,8 +99,6 @@ class Material(BaseModel):
     warranty = models.DurationField(null=True, blank=True)
     size_and_shape = models.CharField(max_length=100, null=True, blank=True)
     weight = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    material_party = models.ForeignKey(MaterialParty, on_delete=models.CASCADE,
-                                       null=True, blank=True, related_name='materials')
 
     def save(self, *args, **kwargs):
         code_name_validate(self)

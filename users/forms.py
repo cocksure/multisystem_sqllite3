@@ -8,5 +8,6 @@ class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = CustomUser
         fields = (
-        'username', 'first_name', 'last_name', 'email', 'profile_image', 'is_active', 'is_staff', 'is_superuser',
-        'groups', 'user_permissions')
+            'username', 'first_name', 'last_name', 'email', 'profile_image', 'is_active', 'can_sign_purchase',
+            'is_staff', 'is_superuser',
+            'groups', 'user_permissions')
