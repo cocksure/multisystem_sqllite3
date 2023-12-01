@@ -54,7 +54,7 @@ class IncomingCreateView(generics.CreateAPIView):
 # ---------------------------------------------------------------------------------------
 class IncomingListView(BaseListView):
     queryset = Incoming.objects.all()
-    serializer_class = serializers.IncomingSerializer
+    serializer_class = serializers.IncomingListOnlySerializer
     filterset_fields = ['warehouse']
     search_fields = ['code']
 

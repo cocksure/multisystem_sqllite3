@@ -1,4 +1,5 @@
 import django_filters
+from rest_framework import filters
 
 
 class PurchaseFilter(django_filters.FilterSet):
@@ -6,3 +7,5 @@ class PurchaseFilter(django_filters.FilterSet):
                                                       label='Created Time (from)')
     created_time__lte = django_filters.DateTimeFilter(field_name='created_time', lookup_expr='lte',
                                                       label='Created Time (to')
+
+

@@ -54,7 +54,7 @@ class OutgoingCreateView(generics.CreateAPIView):
 # ---------------------------------------------------------------------------------------
 class OutgoingListView(BaseListView):
     queryset = Outgoing.objects.all()
-    serializer_class = serializers.OutgoingSerializer
+    serializer_class = serializers.OutgoingListOnlySerializer
     filterset_fields = ['warehouse', 'outgoing_type', 'status']
     search_fields = ['code']
 

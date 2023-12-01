@@ -52,9 +52,12 @@ class IncomingDetailAdmin(admin.ModelAdmin):
 class StockAdmin(admin.ModelAdmin):
     list_display = ('warehouse', 'material_name', 'amount')
     search_fields = ('material__name',)
+    readonly_fields = ('warehouse', 'amount', 'material')
     list_filter = ('warehouse',)
     list_per_page = 100
 
+    def has_delete_permission(self, request, obj=None):
+        return False
     @staticmethod
     def material_name(obj):
         return obj.material.name if obj.material else ''

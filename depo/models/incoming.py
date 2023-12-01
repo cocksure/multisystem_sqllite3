@@ -45,7 +45,7 @@ class IncomingMaterial(models.Model):
     purchase_product = models.ForeignKey('purchase.PurchaseProduct', on_delete=models.SET_NULL, null=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     color = models.CharField(max_length=150, null=True, blank=True)
-    material_party = models.ForeignKey('info.MaterialParty', on_delete=models.CASCADE)
+    material_party = models.ForeignKey('info.MaterialParty', on_delete=models.CASCADE, null=True, blank=True)
     comment = models.TextField(max_length=1000, null=True, blank=True)
 
     def __str__(self):

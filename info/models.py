@@ -1,5 +1,7 @@
 from django.core import validators
 from django.db import models
+from django.utils import timezone
+
 from shared.validators import code_name_validate
 
 from shared.models import BaseModel
@@ -80,6 +82,7 @@ class MaterialType(models.Model):
 class MaterialParty(BaseModel):
     material = models.ForeignKey('info.Material', on_delete=models.CASCADE)
     code = models.CharField(max_length=10, unique=True, null=True, blank=True)
+    production_date = models.DateField(default=None, null=True, blank=True)
 
     def __str__(self):
         return f'{self.code}'

@@ -7,6 +7,22 @@ from depo.models.stock import Stock
 from rest_framework.serializers import ValidationError as DRFValidationError
 
 
+# --------------------ListOnly-------------------------
+class OutgoingListOnlySerializer(ModelSerializer):
+    class Meta:
+        model = Outgoing
+        fields = '__all__'
+
+
+class IncomingListOnlySerializer(ModelSerializer):
+    class Meta:
+        model = Incoming
+        fields = '__all__'
+
+
+# -----------------------------------------------------------------
+
+
 class OutgoingMaterialSerializer(ModelSerializer):
     class Meta:
         model = OutgoingMaterial
@@ -68,15 +84,18 @@ class IncomingMaterialSerializer(ModelSerializer):
 
 
 class IncomingSerializer(serializers.ModelSerializer):
-    incoming_materials = serializers.SerializerMethodField()
-
     class Meta:
         model = Incoming
         fields = '__all__'
 
-    def get_incoming_materials(self, instance):
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
         incoming_materials = IncomingMaterial.objects.filter(incoming=instance)
-        return IncomingMaterialSerializer(incoming_materials, many=True).data
+        incoming_material_data = IncomingMaterialSerializer(incoming_materials, many=True).data
+        data['incoming_materials'] = incoming_material_data
+
+        return data
 
     def validate(self, data):
         from_warehouse = data.get('from_warehouse')

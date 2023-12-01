@@ -5,7 +5,7 @@ from shared.models import BaseModel
 PURCHASE_STATUS = (
     ('new', 'Новая'),
     ('confirmed', 'Подтверждена'),
-    ('distributed', 'Распределена'),
+    ('assigned', 'Распределена'),
     ('rejected', 'Отклонена'),
     ('accepted', 'Принята'),
     ('delivered', 'Доставлена'),
@@ -14,7 +14,7 @@ PURCHASE_STATUS = (
 
 
 class PurchaseProduct(models.Model):
-    purchase = models.ForeignKey('purchase.Purchase', on_delete=models.CASCADE)
+    purchase = models.ForeignKey('purchase.Purchase', on_delete=models.PROTECT)
     material = models.ForeignKey('info.Material', on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     color = models.CharField(max_length=100, null=True, blank=True)
@@ -25,14 +25,13 @@ class PurchaseProduct(models.Model):
     rejected_by = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE, blank=True, null=True,
                                     related_name='rejected_purchaseproducts')
     rejected_at = models.DateTimeField(editable=True, null=True, blank=True, )
-    distributed_at = models.DateTimeField(editable=True, null=True, blank=True, )
-    accepted_at = models.DateTimeField(editable=True, null=True, blank=True, )
+    assigned_at = models.DateTimeField(editable=True, null=True, blank=True, )
     status = models.CharField(choices=PURCHASE_STATUS, default='new')
 
     def purchase_status_validate(self):
         if self.signed_by and self.signed_at:
             self.status = 'confirmed'
-        if self.rejected_by and self.rejected_at:
+        elif self.rejected_by and self.rejected_at:
             self.status = 'rejected'
 
     def save(self, *args, **kwargs):
@@ -44,6 +43,14 @@ class PurchaseProduct(models.Model):
 
 
 class Purchase(BaseModel):
+    PURCHASE_STATUS = (
+        ('new', 'Новая'),
+        ('confirmed', 'Подтверждена'),
+        ('assigned', 'Распределена'),
+        ('rejected', 'Отклонена'),
+        ('delivered', 'Доставлена'),
+        ('in_stock', 'В складе')
+    )
     data = models.DateTimeField(auto_now_add=True)
     department = models.ForeignKey('hr.Department', on_delete=models.CASCADE)
     warehouse = models.ForeignKey('info.Warehouse', on_delete=models.CASCADE)
@@ -51,16 +58,22 @@ class Purchase(BaseModel):
     arrival_date = models.DateField(editable=True)
     status = models.CharField(choices=PURCHASE_STATUS, default='new')
     note = models.TextField(max_length=1000, null=True, blank=True)
+    assigned_to = models.ForeignKey('hr.Employee', on_delete=models.SET_NULL, null=True, blank=True,
+                                    related_name='assigned_purchases'
+                                    )
 
     def update_purchase_status(self):
-        purchase_products = models.PurchaseProduct.objects.filter(purchase=self)
+        purchase_products = self.purchaseproduct_set.all()
 
-        if all(product.status == 'accepted' for product in purchase_products):
+        any_confirmed = any(product.status == 'confirmed' for product in purchase_products)
+        all_rejected = all(product.status == 'rejected' for product in purchase_products)
+
+        if any_confirmed:
             self.status = 'confirmed'
-        elif any(product.status == 'rejected' for product in purchase_products):
+        elif all_rejected:
             self.status = 'rejected'
-        else:
-            self.status = 'new'
+        elif self.assigned_to and self.status != 'assigned':
+            self.status = 'assigned'
 
         self.save()
 

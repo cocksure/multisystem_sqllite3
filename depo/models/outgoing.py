@@ -53,11 +53,11 @@ class Outgoing(BaseModel):
 
 
 class OutgoingMaterial(models.Model):
-    outgoing = models.ForeignKey(Outgoing, on_delete=models.CASCADE, related_name='outgoing_materials')
+    outgoing = models.ForeignKey('Outgoing', on_delete=models.CASCADE, related_name='outgoing_materials')
     material = models.ForeignKey('info.Material', on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     color = models.CharField(max_length=150, null=True, blank=True)
-    material_party = models.ForeignKey('info.MaterialParty', on_delete=models.CASCADE)
+    material_party = models.ForeignKey('info.MaterialParty', on_delete=models.CASCADE, null=True)
     comment = models.TextField(max_length=1000, null=True, blank=True)
 
     def __str__(self):

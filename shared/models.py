@@ -1,4 +1,3 @@
-from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -11,9 +10,9 @@ class BaseModel(models.Model):
     updated_time = models.DateTimeField(auto_now=True, editable=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if self.pk:
-            if not self.updated_by:
-                raise ValidationError("updated_by cannot be null for an existing object.")
+        if not self.updated_by and hasattr(self, 'request') and getattr(self, 'request'):
+            self.updated_by = self.request.user
+
         super().save(*args, **kwargs)
 
     class Meta:

@@ -22,7 +22,7 @@ class CustomUserAdmin(admin.ModelAdmin):
         (None, {'fields': ('username', 'password')}),
         ('Personal Info', {'fields': ('first_name', 'last_name', 'email', 'profile_image')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
-        ('Custom Permissions', {'fields': ('can_sign_purchase',)}),
+        ('Custom Permissions', {'fields': ('can_sign_purchase', 'can_assign_purchase')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
 

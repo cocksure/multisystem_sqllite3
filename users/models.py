@@ -9,6 +9,7 @@ class CustomUser(AbstractUser, PermissionsMixin):
                                                                                                          'png', 'heir',
                                                                                                          'heif'])])
     can_sign_purchase = models.BooleanField(default=False)
+    can_assign_purchase = models.BooleanField(default=False)
 
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"
