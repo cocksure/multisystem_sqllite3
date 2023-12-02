@@ -9,8 +9,9 @@ from hr.models import Employee
 from purchase import models, serializers
 from rest_framework.response import Response
 
-from purchase.models import PurchaseProduct, Purchase
+from purchase.models import PurchaseProduct, Purchase, PurchaseStatus
 from purchase.serializers import PurchaseProductSerializer, PurchaseSerializer
+from shared.utils import CustomPagination
 from shared.views import BaseListView
 from shared.permissions import can_sign_purchase, can_assign_purchase
 
@@ -20,6 +21,7 @@ class PurchaseListView(BaseListView):
     serializer_class = serializers.PurchaseListOnlySerializer
     filterset_fields = ['warehouse', 'department']
     search_fields = ['id', 'requester']
+    pagination_class = CustomPagination
 
 
 class PurchaseDetailView(generics.RetrieveAPIView):
@@ -116,40 +118,66 @@ class ConfirmedPurchaseListView(generics.ListAPIView):
     serializer_class = serializers.PurchaseListOnlySerializer
     filterset_fields = ['warehouse', 'department']
     search_fields = ['id', 'requester']
+    pagination_class = CustomPagination
 
 
 class AssignPurchaseView(generics.UpdateAPIView):
-    queryset = Purchase.objects.filter(status='confirmed')
-    serializer_class = PurchaseSerializer
+    queryset = PurchaseProduct.objects.all()
+    serializer_class = PurchaseProductSerializer
 
+    def get_purchase(self):
+        purchase_id = self.kwargs.get('pk')
+        return get_object_or_404(Purchase, pk=purchase_id)
+
+    def get_object(self):
+        purchase = self.get_purchase()
+
+        purchase_products = PurchaseProduct.objects.filter(
+            purchase=purchase,
+        )
+
+        return purchase_products
+
+    @transaction.atomic
     def update(self, request, *args, **kwargs):
-        purchase_id = kwargs.get('pk')
+        purchase_products_data = request.data
 
-        try:
-            purchase = Purchase.objects.get(pk=purchase_id, status='confirmed')
-        except Purchase.DoesNotExist:
-            return Response({"detail": "Purchase not found or not confirmed."}, status=status.HTTP_404_NOT_FOUND)
+        if not purchase_products_data:
+            return Response({"detail": "No data provided for distribution."},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        assigned_to_id = request.data.get('assigned_to', None)
+        purchase_products = [get_object_or_404(PurchaseProduct, pk=item.get('purchase_product_id'))
+                             for item in purchase_products_data]
 
-        if assigned_to_id is not None:
-            # Check if the user has permission to assign purchases
+        for purchase_product_data, purchase_product in zip(purchase_products_data, purchase_products):
+            assigned_to_id = purchase_product_data.get('assigned_to', None)
+
             if not can_assign_purchase(request.user):
                 return Response({"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
 
-            assigned_to = get_object_or_404(Employee, pk=assigned_to_id, department__id=3)
-            purchase.assigned_to = assigned_to
-            purchase.status = 'assigned'
-            purchase.save()
+            if assigned_to_id is not None:
+                if purchase_product.status in [PurchaseStatus.CONFIRMED]:
+                    assigned_to = get_object_or_404(Employee, pk=assigned_to_id, department__id=2)
+                    purchase_product.assigned_by = request.user
+                    purchase_product.assigned_to = assigned_to
+                    purchase_product.assigned_at = timezone.now()
+                    try:
+                        purchase_product.save()
+                    except Exception as e:
+                        return Response({"detail": f"Failed to save purchase product. {str(e)}"},
+                                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                else:
+                    return Response(
+                        {"detail": "Cannot reassign product with status other than 'confirmed"},
+                        status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({"detail": "assigned_to field is required for distribution."},
+                                status=status.HTTP_400_BAD_REQUEST)
 
-            redirect_url = reverse('purchase:confirmed-purchase-list')
-            return Response(status=status.HTTP_303_SEE_OTHER, headers={'Location': redirect_url})
-        else:
-            return Response({"detail": "Assigned_to field is required for distribution."},
-                            status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Distribution successful."}, status=status.HTTP_200_OK)
 
 
-class ExecutorsPurchaseListView(generics.ListAPIView):
+class AssignedPurchaseListView(generics.ListAPIView):
     queryset = models.Purchase.objects.filter(status='assigned')
     serializer_class = serializers.PurchaseSerializer
-    filterset_fields = ['assigned_to']
+    pagination_class = CustomPagination

@@ -7,6 +7,7 @@ from depo import serializers
 from depo.models.outgoing import Outgoing, OutgoingMaterial
 from depo.models.stock import Stock
 from depo.serializers import OutgoingMaterialSerializer, OutgoingSerializer
+from shared.utils import CustomPagination
 from shared.views import BaseListView
 
 
@@ -57,6 +58,7 @@ class OutgoingListView(BaseListView):
     serializer_class = serializers.OutgoingListOnlySerializer
     filterset_fields = ['warehouse', 'outgoing_type', 'status']
     search_fields = ['code']
+    pagination_class = CustomPagination
 
 
 # ---------------------------------------------------------------------------------------

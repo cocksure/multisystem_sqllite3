@@ -2,15 +2,15 @@ from django.db import models
 
 from shared.models import BaseModel
 
-PURCHASE_STATUS = (
-    ('new', 'Новая'),
-    ('confirmed', 'Подтверждена'),
-    ('assigned', 'Распределена'),
-    ('rejected', 'Отклонена'),
-    ('accepted', 'Принята'),
-    ('delivered', 'Доставлена'),
-    ('in_stock', 'В складе')
-)
+
+class PurchaseStatus(models.TextChoices):
+    NEW = 'new', 'Новая'
+    CONFIRMED = 'confirmed', 'Подтверждена'
+    ASSIGNED = 'assigned', 'Распределена'
+    REJECTED = 'rejected', 'Отклонена'
+    ACCEPTED = 'accepted', 'Принята'
+    DELIVERED = 'delivered', 'Доставлена'
+    IN_STOCK = 'in_stock', 'В складе'
 
 
 class PurchaseProduct(models.Model):
@@ -25,55 +25,56 @@ class PurchaseProduct(models.Model):
     rejected_by = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE, blank=True, null=True,
                                     related_name='rejected_purchaseproducts')
     rejected_at = models.DateTimeField(editable=True, null=True, blank=True, )
+    assigned_by = models.ForeignKey('users.CustomUser', on_delete=models.SET_NULL, null=True, blank=True,
+                                    related_name='assigned_purchaseproducts_per_material')
     assigned_at = models.DateTimeField(editable=True, null=True, blank=True, )
-    status = models.CharField(choices=PURCHASE_STATUS, default='new')
+    assigned_to = models.ForeignKey('hr.Employee', on_delete=models.SET_NULL, null=True, blank=True,
+                                    related_name='executor_purchaseproducts')
+    status = models.CharField(choices=PurchaseStatus.choices, default=PurchaseStatus.NEW)
 
     def purchase_status_validate(self):
-        if self.signed_by and self.signed_at:
-            self.status = 'confirmed'
-        elif self.rejected_by and self.rejected_at:
-            self.status = 'rejected'
+        current_status = self.status
+
+        if current_status == PurchaseStatus.NEW:
+            if all([self.signed_by, self.signed_at]):
+                self.status = PurchaseStatus.CONFIRMED
+        elif current_status == PurchaseStatus.CONFIRMED:
+            if all([self.rejected_by, self.rejected_at]):
+                self.status = PurchaseStatus.REJECTED
+            elif all([self.assigned_by, self.assigned_at]):
+                self.status = PurchaseStatus.ASSIGNED
 
     def save(self, *args, **kwargs):
         self.purchase_status_validate()
         super().save(*args, **kwargs)
+        self.purchase.update_purchase_status()
 
     def __str__(self):
         return str(self.id)
 
 
 class Purchase(BaseModel):
-    PURCHASE_STATUS = (
-        ('new', 'Новая'),
-        ('confirmed', 'Подтверждена'),
-        ('assigned', 'Распределена'),
-        ('rejected', 'Отклонена'),
-        ('delivered', 'Доставлена'),
-        ('in_stock', 'В складе')
-    )
     data = models.DateTimeField(auto_now_add=True)
     department = models.ForeignKey('hr.Department', on_delete=models.CASCADE)
     warehouse = models.ForeignKey('info.Warehouse', on_delete=models.CASCADE)
     requester = models.ForeignKey('hr.Employee', on_delete=models.SET_NULL, null=True)
     arrival_date = models.DateField(editable=True)
-    status = models.CharField(choices=PURCHASE_STATUS, default='new')
+    status = models.CharField(choices=PurchaseStatus.choices, default=PurchaseStatus.NEW, max_length=20)
     note = models.TextField(max_length=1000, null=True, blank=True)
-    assigned_to = models.ForeignKey('hr.Employee', on_delete=models.SET_NULL, null=True, blank=True,
-                                    related_name='assigned_purchases'
-                                    )
 
     def update_purchase_status(self):
-        purchase_products = self.purchaseproduct_set.all()
+        confirmed_count = self.purchaseproduct_set.filter(status=PurchaseStatus.CONFIRMED).exists()
+        rejected_count = self.purchaseproduct_set.filter(status=PurchaseStatus.REJECTED).exists()
+        assigned_count = self.purchaseproduct_set.filter(status=PurchaseStatus.ASSIGNED).exists()
 
-        any_confirmed = any(product.status == 'confirmed' for product in purchase_products)
-        all_rejected = all(product.status == 'rejected' for product in purchase_products)
-
-        if any_confirmed:
-            self.status = 'confirmed'
-        elif all_rejected:
-            self.status = 'rejected'
-        elif self.assigned_to and self.status != 'assigned':
-            self.status = 'assigned'
+        if confirmed_count and not rejected_count and not assigned_count:
+            self.status = PurchaseStatus.CONFIRMED
+        elif not confirmed_count and rejected_count and not assigned_count:
+            self.status = PurchaseStatus.REJECTED
+        elif not confirmed_count and not rejected_count and assigned_count:
+            self.status = PurchaseStatus.ASSIGNED
+        else:
+            self.status = PurchaseStatus.NEW
 
         self.save()
 

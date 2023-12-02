@@ -10,6 +10,6 @@ urlpatterns = [
     path('confirm/<int:pk>/', views.PurchaseConfirmationView.as_view(), name='purchase-confirm'),
     path('confirmed/', views.ConfirmedPurchaseListView.as_view(), name='confirmed-purchase-list'),
     path('assign/<int:pk>/', views.AssignPurchaseView.as_view(), name='assign-purchase'),
-    path('executors/', views.ExecutorsPurchaseListView.as_view(), name='executors-list'),
+    path('assigns/', views.AssignedPurchaseListView.as_view(), name='assigned-list'),
 
 ]
