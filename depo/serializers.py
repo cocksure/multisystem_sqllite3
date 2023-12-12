@@ -116,7 +116,6 @@ class IncomingSerializer(serializers.ModelSerializer):
 class StockSerializer(ModelSerializer):
     material_name = serializers.CharField(source='material.name', read_only=True)
     material_group = serializers.CharField(source='material.group.name', read_only=True)
-    material_party = serializers.CharField(source='material.material_party.code', read_only=True)
     material_color = serializers.CharField(source='material.color', read_only=True)
     material_unit = serializers.CharField(source='material.unit.name', read_only=True)
 

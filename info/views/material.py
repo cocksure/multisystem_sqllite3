@@ -23,7 +23,7 @@ class MaterialViewSetView(viewsets.ModelViewSet):
     queryset = models.Material.objects.all()
     serializer_class = material.MaterialSerializer
     filterset_fields = ['group', 'type']
-    search_fields = ['code', 'name', 'material_party__code']
+    search_fields = ['code', 'name']
     pagination_class = CustomPagination
 
     def perform_create(self, serializer):

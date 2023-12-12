@@ -7,7 +7,7 @@ class MaterialSerializer(BaseNameCodeSerializer):
     class Meta:
         model = models.Material
         fields = ('id', 'code', 'name', 'type', 'group', 'unit', 'color',
-                  'photo', 'price', 'note', 'warranty', 'size_and_shape', 'weight', 'material_party',
+                  'photo', 'price', 'note', 'warranty', 'size_and_shape', 'weight',
                   'created_time', 'updated_time', 'created_by', 'updated_by')
 
 
