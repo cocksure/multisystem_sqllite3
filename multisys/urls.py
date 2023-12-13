@@ -27,6 +27,7 @@ urlpatterns = [
     path('api/hr/', include('hr.urls')),
     path('api/users/', include('users.urls')),
     path('api/purchase/', include('purchase.urls')),
+    path('api/shared/', include('shared.urls')),
 
     # dj-rest-auth
     path('api-auth/', include('rest_framework.urls')),

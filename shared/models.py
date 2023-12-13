@@ -18,3 +18,19 @@ class BaseModel(models.Model):
     class Meta:
         ordering = ['-created_time']
         abstract = True
+
+
+class MainMenu(models.Model):
+    title = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.title
+
+
+class SubMenu(models.Model):
+    title = models.CharField(max_length=100)
+    url = models.CharField(max_length=200)
+    parent = models.ForeignKey(MainMenu, on_delete=models.CASCADE, related_name='submenus')
+
+    def __str__(self):
+        return self.title
