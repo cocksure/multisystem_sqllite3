@@ -1,4 +1,6 @@
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import status, generics
 from rest_framework.response import Response
@@ -7,6 +9,7 @@ from depo import serializers
 from depo.models.incoming import Incoming, IncomingMaterial
 from depo.models.stock import Stock
 from depo.serializers import IncomingSerializer, IncomingMaterialSerializer
+from info.models import Warehouse
 from shared.utils import CustomPagination
 from shared.views import BaseListView
 
@@ -21,6 +24,12 @@ class IncomingCreateView(generics.CreateAPIView):
         incoming_data = request.data.copy()
         incoming_material_data = incoming_data.pop('incoming_materials', [])
 
+        warehouse_id = incoming_data.get('warehouse')  # Предполагается, что это поле указывает на склад
+        warehouse = get_object_or_404(Warehouse, id=warehouse_id)
+
+        if not request.user.is_authenticated or not warehouse.managers.filter(id=request.user.id).exists():
+            raise PermissionDenied("У вас нет разрешения на выполнение операции прихода в этом складе.")
+
         incoming_data['created_by'] = request.user.id if request.user.is_authenticated else None
         incoming_data['data'] = timezone.now().date()
 
@@ -31,6 +40,7 @@ class IncomingCreateView(generics.CreateAPIView):
 
         incoming_material_data = [{'incoming': incoming.id, **item} for item in incoming_material_data]
         incoming_material_serializer = IncomingMaterialSerializer(data=incoming_material_data, many=True)
+
         if incoming_material_serializer.is_valid():
             incoming_material_serializer.save()
 

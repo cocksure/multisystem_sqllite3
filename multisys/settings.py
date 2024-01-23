@@ -1,6 +1,9 @@
 from pathlib import Path
 import environ
 import os
+import sys
+import logging
+
 
 env = environ.Env(
     DEBUG=(bool, False)
@@ -38,7 +41,6 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'dj_rest_auth.registration',
-    'mptt',
 
     # local apps
     'depo',
@@ -51,16 +53,16 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated',
     ],
 
     'DEFAULT_PAGINATION_CLASS': 'shared.utils.CustomPagination',
     'PAGE_SIZE': 20,
 
-    # 'DEFAULT_PARSER_CLASSES': [
-    #     'rest_framework.parsers.JSONParser',
-    #     'rest_framework.parsers.FormParser',
-    # ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+    ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
@@ -144,7 +146,7 @@ DATABASES = {
         "NAME": env('DB_NAME'),
         "USER": env('DB_USER'),
         "PASSWORD": env('DB_PASSWORD'),
-        "HOST": env('DB_HOST'),
+        "HOST": "db",
         "PORT": env('DB_PORT'),
     }
 }
@@ -197,3 +199,27 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 SITE_ID = 1
 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.DEBUG,
+    format='%(asctime)s [%(levelname)s] - %(message)s',
+)
+
+# Включите логгирование SQL-запросов для Django
+if 'sql' in sys.argv:
+    LOGGING = {
+        'version': 1,
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'loggers': {
+            'django.db.backends': {
+                'level': 'DEBUG',
+                'handlers': ['console'],
+            },
+        },
+    }

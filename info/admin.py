@@ -93,7 +93,7 @@ class WarehouseAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Basic Information', {
-            'fields': ('code', 'name', 'location', 'can_import', 'can_export', 'use_negative', 'is_active')
+            'fields': ('code', 'name', 'location', 'can_import', 'can_export', 'use_negative', 'is_active', 'managers')
         }),
 
         ('Timestamps', {
@@ -120,6 +120,7 @@ class CurrencyAdmin(admin.ModelAdmin):
     list_per_page = 100
     date_hierarchy = 'created_time'
     fields = ('code', 'name', 'created_by', 'updated_by', 'created_time', 'updated_time')
+    readonly_fields = ('created_time', 'updated_time')
 
 
 @admin.register(models.Brand)
@@ -129,6 +130,7 @@ class BrandAdmin(admin.ModelAdmin):
     list_per_page = 100
     date_hierarchy = 'created_time'
     fields = ('name', 'created_by', 'updated_by', 'created_time', 'updated_time')
+    readonly_fields = ('created_time', 'updated_time')
 
 
 @admin.register(models.Specification)

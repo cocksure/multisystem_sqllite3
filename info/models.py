@@ -1,6 +1,5 @@
 from django.core import validators
 from django.db import models
-from django.utils import timezone
 
 from shared.validators import code_name_validate
 
@@ -119,6 +118,7 @@ class Warehouse(BaseModel):
     can_export = models.BooleanField(default=False)
     use_negative = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    managers = models.ManyToManyField('users.CustomUser', blank=True)
 
     def save(self, *args, **kwargs):
         code_name_validate(self)
@@ -140,7 +140,7 @@ class Device(BaseModel):
     comment = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return self.agent
+        return self.agent.full_name
 
 
 class Currency(BaseModel):

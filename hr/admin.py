@@ -36,7 +36,7 @@ class EmployeeAdmin(admin.ModelAdmin):
             'fields': ('full_name', 'gender', 'date_of_birth', 'address', 'phone_number', 'email')
         }),
         ('Информация о Трудоустройстве', {
-            'fields': ('department', 'position', 'salary', 'date_of_hire', 'is_fired', 'date_of_fire', 'user')
+            'fields': ('department', 'position', 'salary', 'date_of_hire', 'is_fired', 'date_of_fire', 'user', 'warehouses')
         }),
         ('Информация о Документах', {
             'fields': (

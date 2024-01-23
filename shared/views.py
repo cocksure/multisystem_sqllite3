@@ -1,7 +1,5 @@
 from rest_framework import generics
 
-from shared.models import MainMenu, SubMenu
-from shared.serializers import MainMenuSerializer, SubMenuSerializer
 from shared.utils import CustomPagination
 
 
@@ -18,13 +16,3 @@ class BaseListView(generics.ListAPIView):
         if page_size:
             self.pagination_class.page_size = page_size
         return self.list(request, *args, **kwargs)
-
-
-class MainMenuListCreateView(generics.ListCreateAPIView):
-    queryset = MainMenu.objects.all()
-    serializer_class = MainMenuSerializer
-
-
-class SubMenuListCreateView(generics.ListCreateAPIView):
-    queryset = SubMenu.objects.all()
-    serializer_class = SubMenuSerializer

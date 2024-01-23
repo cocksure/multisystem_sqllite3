@@ -59,3 +59,6 @@ class BrandViewSetView(viewsets.ModelViewSet):
     serializer_class = infos.BrandSerializer
     search_fields = ['name']
     pagination_class = CustomPagination
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)

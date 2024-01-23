@@ -1,12 +1,15 @@
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import status, generics
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from depo import serializers
 from depo.models.outgoing import Outgoing, OutgoingMaterial
 from depo.models.stock import Stock
 from depo.serializers import OutgoingMaterialSerializer, OutgoingSerializer
+from info.models import Warehouse
 from shared.utils import CustomPagination
 from shared.views import BaseListView
 
@@ -21,6 +24,12 @@ class OutgoingCreateView(generics.CreateAPIView):
         outgoing_data = request.data.copy()
         outgoing_material_data = outgoing_data.pop('outgoing_materials', [])
 
+        warehouse_id = outgoing_data.get('warehouse')  # Предполагается, что это поле указывает на склад
+        warehouse = get_object_or_404(Warehouse, id=warehouse_id)
+
+        if not request.user.is_authenticated or not warehouse.managers.filter(id=request.user.id).exists():
+            raise PermissionDenied("У вас нет разрешения на выполнение операции прихода в этом складе.")
+
         outgoing_data['created_by'] = request.user.id if request.user.is_authenticated else None
         outgoing_data['data'] = timezone.now().date()
 
@@ -31,6 +40,7 @@ class OutgoingCreateView(generics.CreateAPIView):
 
         outgoing_material_data = [{'outgoing': outgoing.id, **item} for item in outgoing_material_data]
         outgoing_material_serializer = OutgoingMaterialSerializer(data=outgoing_material_data, many=True)
+
         if outgoing_material_serializer.is_valid():
             outgoing_material_serializer.save()
 

@@ -13,4 +13,6 @@ urlpatterns = [
 
     path('employees/', views.EmployeeListCreateView.as_view(), name='employee-list'),
     path('employees/<int:pk>/', views.EmployeeDetailUpdateDeleteView.as_view(), name='employee-detail'),
+
+    path('export_employee_pdf/<int:employee_id>/', views.ExportEmployeePDFView.as_view(), name='export_employee_pdf'),
 ]

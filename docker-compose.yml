@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    command: bash -c "sleep 10 && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://db:5432"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+      - multisystem_back_default
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: multisystem
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Uz7784508
+    ports:
+      - "5432:5432"
+    networks:
+      - multisystem_back_default
+
+networks:
+  multisystem_back_default:
+    driver: bridge
+

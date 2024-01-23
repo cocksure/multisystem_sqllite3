@@ -53,6 +53,7 @@ class Employee(BaseModel):
     passport_pin = models.CharField(max_length=14, unique=True)
     photo = models.ImageField(upload_to='employee_photos', default='default-profile__picture.jpg')
     user = models.OneToOneField('users.CustomUser', on_delete=models.CASCADE, null=True, blank=True)
+    warehouses = models.ManyToManyField('info.Warehouse', blank=True)
 
     def __str__(self):
         return self.full_name
