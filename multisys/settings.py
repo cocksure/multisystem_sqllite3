@@ -43,12 +43,12 @@ INSTALLED_APPS = [
     'dj_rest_auth.registration',
 
     # local apps
-    'depo',
-    'hr',
-    'users',
-    'shared',
-    'info',
-    'purchase',
+    'apps.depo',
+    'apps.hr',
+    'apps.users',
+    'apps.shared',
+    'apps.info',
+    'apps.purchase',
 ]
 
 REST_FRAMEWORK = {
@@ -56,7 +56,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 
-    'DEFAULT_PAGINATION_CLASS': 'shared.utils.CustomPagination',
+    'DEFAULT_PAGINATION_CLASS': 'apps.shared.utils.CustomPagination',
     'PAGE_SIZE': 20,
 
     'DEFAULT_PARSER_CLASSES': [
@@ -146,7 +146,7 @@ DATABASES = {
         "NAME": env('DB_NAME'),
         "USER": env('DB_USER'),
         "PASSWORD": env('DB_PASSWORD'),
-        "HOST": "db",
+        "HOST": env('DB_HOST'),
         "PORT": env('DB_PORT'),
     }
 }
@@ -207,7 +207,7 @@ logging.basicConfig(
     format='%(asctime)s [%(levelname)s] - %(message)s',
 )
 
-# Включите логгирование SQL-запросов для Django
+# Включит логгирование SQL-запросов для Django
 if 'sql' in sys.argv:
     LOGGING = {
         'version': 1,

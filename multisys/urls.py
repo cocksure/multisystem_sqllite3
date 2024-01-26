@@ -22,11 +22,11 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/depo/', include('depo.urls')),
-    path('api/info/', include('info.urls')),
-    path('api/hr/', include('hr.urls')),
-    path('api/users/', include('users.urls')),
-    path('api/purchase/', include('purchase.urls')),
+    path('api/depo/', include('apps.depo.urls')),
+    path('api/info/', include('apps.info.urls')),
+    path('api/hr/', include('apps.hr.urls')),
+    path('api/users/', include('apps.users.urls')),
+    path('api/purchase/', include('apps.purchase.urls')),
 
     # dj-rest-auth
     path('api-auth/', include('rest_framework.urls')),

@@ -11,12 +11,17 @@ services:
     depends_on:
       - db
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://db:5432"]
+      test: ["CMD-SHELL", "pg_isready -h db -p 5432 -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
       timeout: 10s
       retries: 5
     networks:
       - multisystem_back_default
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=db
 
   db:
     image: postgres:latest
@@ -32,4 +37,3 @@ services:
 networks:
   multisystem_back_default:
     driver: bridge
-
