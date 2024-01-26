@@ -38,6 +38,7 @@ drf-yasg==1.21.7
 et-xmlfile==1.1.0
 eyeD3==0.8.10
 filelock==3.6.0
+gunicorn==21.2.0
 httplib2==0.20.2
 idna==3.4
 ifaddr==0.1.7
