@@ -5,7 +5,7 @@ app_name = 'depo'
 
 urlpatterns = [
     path('incoming/', incoming.IncomingListView.as_view(), name='incoming-list'),
-    path('incoming/create', incoming.IncomingCreateView.as_view(), name='incoming-create'),
+    path('incoming/create/', incoming.IncomingCreateView.as_view(), name='incoming-create'),
     path('incoming/detail/<int:pk>/', incoming.IncomingDetailView.as_view(), name='incoming-detail'),
 
     path('outgoing/', outgoing.OutgoingListView.as_view(), name='outgoing-list'),
