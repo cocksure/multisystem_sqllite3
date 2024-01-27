@@ -16,11 +16,7 @@ SECRET_KEY = env('SECRET_KEY')
 
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    '138.197.88.10',
-]
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.sites',
