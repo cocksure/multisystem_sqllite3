@@ -21,7 +21,7 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=db  # Имя хоста для подключения к PostgreSQL
+      - DB_HOST=${DB_HOST}
 
   db:
     image: postgres:latest

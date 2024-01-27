@@ -14,13 +14,11 @@ COPY . /app/
 
 EXPOSE 8000
 
-# Удаляем сгенерированные статические файлы
 RUN rm -rf /app/static
 
 # Копируем статику
 COPY static /app/static
 
-# Собираем статику
 RUN python manage.py collectstatic --noinput
 
 CMD ["gunicorn", "multisys.wsgi:application", "-b", "0.0.0.0:8000"]
