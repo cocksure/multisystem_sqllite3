@@ -17,4 +17,4 @@ COPY . /app/
 
 EXPOSE 8000
 
-CMD ["gunicorn", "multisys.wsgi:application", "--bind", "138.197.88.10:8030"]
+CMD ["gunicorn", "multisys.wsgi:application", "--bind", "0.0.0.0:8030"]

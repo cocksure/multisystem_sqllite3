@@ -3,9 +3,11 @@ version: '3'
 services:
   web:
     build: .
-    command: bash -c "sleep 10 && python manage.py migrate && gunicorn multisys.wsgi:application --bind 138.197.88.10:8030"
+    command: bash -c "sleep 10 && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
+    ports:
+      - "8000:8000"
     depends_on:
       - db
     healthcheck:
@@ -19,10 +21,7 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=db
-    expose:
-      - "8030"
-
+      - DB_HOST=db  # Имя хоста для подключения к PostgreSQL
 
   db:
     image: postgres:latest
