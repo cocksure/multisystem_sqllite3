@@ -30,7 +30,7 @@ services:
     depends_on:
       - web
     volumes:
-      - /root/multisystem_sqllite3/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /root/multisystem_sqllite3:/etc/nginx/conf.d:ro
 
   db:
     image: postgres:latest
