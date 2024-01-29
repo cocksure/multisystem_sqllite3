@@ -15,8 +15,7 @@ RUN python -m pip install --no-cache-dir -r requirements.txt
 
 COPY . /app/
 
-# Debugging: print the contents of /root/multisystem_sqllite3/
-RUN ls -l /root/multisystem_sqllite3/
+
 
 EXPOSE 8030
 
