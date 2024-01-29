@@ -1,5 +1,6 @@
 FROM python:3.9.11
 
+
 SHELL ["/bin/bash", "-c"]
 
 
@@ -14,6 +15,6 @@ RUN python -m pip install --no-cache-dir -r requirements.txt
 
 COPY . /app/
 
-EXPOSE 8000
+EXPOSE 8030
 
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "multisys.wsgi:application"]
+CMD ["gunicorn", "multisys.wsgi:application", "-b", "0.0.0.0:8030"]

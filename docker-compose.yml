@@ -3,11 +3,11 @@ version: '3.8'
 services:
   web:
     build: .
-    command: gunicorn -b 0.0.0.0:8000 multisys.wsgi:application
+    command: gunicorn -b 0.0.0.0:8030 multisys.wsgi:application
     volumes:
       - .:/app
     ports:
-      - "8000:8000"
+      - "8030:8030"
     depends_on:
       - db
     healthcheck:
