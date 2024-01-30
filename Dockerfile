@@ -1,22 +1,24 @@
 FROM python:3.9
 
 RUN apt-get update \
-    && apt-get install -y nginx \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get install -y nginx
 
+
+SHELL ["/bin/bash", "-c"]
+
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBEFFERED 1
+
+
+COPY requirements.txt /app/
 WORKDIR /app
+RUN python -m pip install --no-cache-dir -U pip
+RUN python -m pip install --no-cache-dir -r requirements.txt
 
-COPY requirements.txt .
-RUN python -m pip install --no-cache-dir -U pip \
-    && python -m pip install --no-cache-dir -r requirements.txt
+COPY . /app/
 
-COPY . .
 
-RUN python -m pip cache purge \
-    && rm -rf /root/.cache
-
-RUN rm -rf /var/cache/nginx/*
 
 EXPOSE 8030
 

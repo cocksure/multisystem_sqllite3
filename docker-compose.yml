@@ -23,14 +23,14 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_HOST=${DB_HOST}
 
-  nginx:
-    image: nginx:latest
-    ports:
-      - "8080:80"
-    depends_on:
-      - web
-    volumes:
-      - /root/multisystem_sqllite3:/etc/nginx/conf.d:ro
+#  nginx:
+#    image: nginx:latest
+#    ports:
+#      - "8080:80"
+#    depends_on:
+#      - web
+#    volumes:
+#      - /root/multisystem_sqllite3:/etc/nginx/conf.d:ro
 
   db:
     image: postgres:latest
