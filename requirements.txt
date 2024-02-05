@@ -25,3 +25,4 @@ tzdata==2023.3
 websocket-client==1.2.3
 websockets==9.1
 reportlab==3.6.1
+xhtml2pdf==0.2.14

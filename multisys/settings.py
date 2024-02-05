@@ -106,6 +106,7 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
+
 ]
 
 MIDDLEWARE = [
@@ -127,7 +128,7 @@ ROOT_URLCONF = 'multisys.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'hr/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -189,10 +190,10 @@ LANGUAGES = (
     ('uz', gettext('Uzbek')),
 )
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
 
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

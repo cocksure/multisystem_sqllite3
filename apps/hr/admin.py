@@ -33,7 +33,7 @@ class EmployeeAdmin(admin.ModelAdmin):
         'created_time', 'updated_time', 'created_by', 'updated_by')
     fieldsets = (
         ('Личная Информация', {
-            'fields': ('full_name', 'gender', 'date_of_birth', 'address', 'phone_number', 'email')
+            'fields': ('full_name', 'gender', 'date_of_birth', 'address', 'phone_number', 'email', 'photo')
         }),
         ('Информация о Трудоустройстве', {
             'fields': ('department', 'position', 'salary', 'date_of_hire', 'is_fired', 'date_of_fire', 'user', 'warehouses')
