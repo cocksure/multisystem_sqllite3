@@ -1,9 +1,13 @@
-from pathlib import Path
+from __future__ import absolute_import, unicode_literals
+
 import environ
+import logging
 import os
 import sys
-import logging
+from datetime import datetime, timedelta
+from pathlib import Path
 
+from celery import Celery
 
 env = environ.Env(
     DEBUG=(bool, False)
@@ -20,14 +24,14 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.sites',
-    'modeltranslation',
+    # 'modeltranslation',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    
     # packages
     'django.dispatch',
     'import_export',
@@ -41,8 +45,11 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'dj_rest_auth.registration',
-
-
+    'celery',
+    'django_celery_beat',
+    'django_celery_results',
+    # 'django_postmark',
+    
     # local apps
     'apps.depo',
     'apps.hr',
@@ -56,28 +63,28 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-
+    
     'DEFAULT_PAGINATION_CLASS': 'apps.shared.utils.CustomPagination',
     'PAGE_SIZE': 20,
-
+    
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.FormParser',
     ],
-
+    
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ],
-
+    
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
-
+    
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.AutoSchema',
-
+    
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -108,7 +115,18 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 
 ]
+app = Celery('multisys')
+app.config_from_object('django.conf:settings', namespace='CELERY')
+broker_url = 'amqp://guest:guest@localhost:5672//'
+CELERY_RESULT_BACKEND = 'rpc://'
+app.autodiscover_tasks()
 
+CELERY_BEAT_SCHEDULE = {
+    'send_daily_report': {
+        'task': 'apps.hr.tasks.send_daily_report',
+        'schedule': timedelta(days=1),
+    },
+}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -189,6 +207,14 @@ LANGUAGES = (
     ('ru', gettext('Russian')),
     ('uz', gettext('Uzbek')),
 )
+MODELTRANSLATION_LANGUAGES = ('en', 'ru')
+MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
+
+TRANSLATABLE_MODEL_MODULES = [
+    'info.models',
+]
+
+MODELTRANSLATION_FALLBACK_LANGUAGES = ('en',)
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
@@ -198,11 +224,30 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+import time
+import sib_api_v3_sdk
+from sib_api_v3_sdk.rest import ApiException
+from pprint import pprint
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp-relay.brevo.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+
+API_KEY = env('API_KEY')
+PARTNER_KEY = env('API_KEY')
+
+# configuration = sib_api_v3_sdk.Configuration()
+# configuration.api_key[
+#     'api-key'] = env('api_key')
+# configuration.api_key[
+#     'partner-key'] = env('api_key')
+
 SITE_ID = 1
 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
-
 
 logging.basicConfig(
     stream=sys.stdout,

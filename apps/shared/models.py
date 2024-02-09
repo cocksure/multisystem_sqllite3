@@ -18,3 +18,13 @@ class BaseModel(models.Model):
     class Meta:
         ordering = ['-created_time']
         abstract = True
+
+
+class DailyReport(models.Model):
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=50, unique=True)
+    send_time = models.TimeField()
+    recipients = models.ManyToManyField('hr.Employee', related_name='reports')
+
+    def __str__(self):
+        return self.name

@@ -1,8 +1,8 @@
 from django.urls import path
+
 from . import views
 
 app_name = 'hr'
-
 
 urlpatterns = [
     path('divisions/', views.DivisionsListCreateView.as_view(), name='division-list'),
@@ -15,5 +15,7 @@ urlpatterns = [
     path('employees/<int:pk>/', views.EmployeeDetailUpdateDeleteView.as_view(), name='employee-detail'),
 
     path('employee/export/<int:pk>/', views.EmployeePDFExportView.as_view(), name='employee_export'),
+    path('daily/report/', views.DailyReport.as_view(), name='daily_report'),
+    path('daily/report/?pdf', views.DailyReport.as_view(), {'pdf': True}, name='daily_report_pdf'),
 
 ]

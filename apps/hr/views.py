@@ -1,9 +1,4 @@
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from reportlab.pdfgen import canvas
 from rest_framework import generics
-from rest_framework.views import APIView
-
 from apps.hr import models
 from apps.hr import serializers
 from apps.shared.views import BaseListView
@@ -54,12 +49,58 @@ class PositionListCreateView(generics.ListCreateAPIView):
 
 
 # ------------------------------export pdf---------------------------------------------------
-from .models import Employee, Department
+from .models import Employee, Department, Division, Position
 from django.template.loader import get_template
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from weasyprint import HTML, CSS
+
+
+class DailyReport(View):
+    template_name = 'daily_report.html'
+
+    def get(self, request):
+        if 'pdf' in request.GET:
+            generate_and_send_daily_report_pdf.delay()  # Call Celery task to generate and send PDF
+            return HttpResponse("PDF generation and email sending task has been initiated.")
+        else:
+            divisions = Division.objects.all()
+            departments = Department.objects.all()
+            positions = Position.objects.all()
+            employees = Employee.objects.all()
+
+            context = {
+                'divisions': divisions,
+                'departments': departments,
+                'positions': positions,
+                'employees': employees,
+            }
+
+            return render(request, self.template_name, context)
+
+    def generate_pdf(self, context):
+        template = get_template(self.template_name)
+        html = template.render(context)
+
+        css = """
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+        body {
+            font-size: 12pt;
+            line-height: 1.6;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        """
+
+        pdf_data = HTML(string=html).write_pdf(stylesheets=[CSS(string=css)])
+
+        return pdf_data
 
 
 class EmployeePDFExportView(View):
