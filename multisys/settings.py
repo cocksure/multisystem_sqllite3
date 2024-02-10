@@ -31,7 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     # packages
     'django.dispatch',
     'import_export',
@@ -48,8 +48,10 @@ INSTALLED_APPS = [
     'celery',
     'django_celery_beat',
     'django_celery_results',
+    'django_cron',
+
     # 'django_postmark',
-    
+
     # local apps
     'apps.depo',
     'apps.hr',
@@ -63,28 +65,28 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-    
+
     'DEFAULT_PAGINATION_CLASS': 'apps.shared.utils.CustomPagination',
     'PAGE_SIZE': 20,
-    
+
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.FormParser',
     ],
-    
+
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ],
-    
+
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
-    
+
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.AutoSchema',
-    
+
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -239,12 +241,6 @@ EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 API_KEY = env('API_KEY')
 PARTNER_KEY = env('API_KEY')
 
-# configuration = sib_api_v3_sdk.Configuration()
-# configuration.api_key[
-#     'api-key'] = env('api_key')
-# configuration.api_key[
-#     'partner-key'] = env('api_key')
-
 SITE_ID = 1
 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
@@ -271,3 +267,7 @@ if 'sql' in sys.argv:
             },
         },
     }
+
+CRON_CLASSES = [
+    'apps.hr.cron.SendDailyReport',
+]
