@@ -6,7 +6,6 @@ import os
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-
 from celery import Celery
 
 env = environ.Env(
@@ -86,6 +85,15 @@ REST_FRAMEWORK = {
     ],
 
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.AutoSchema',
+
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.UserRateThrottle',
+        'rest_framework.throttling.AnonRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'user': '3/s',
+        'anon': '1/s',
+    }
 
 }
 
