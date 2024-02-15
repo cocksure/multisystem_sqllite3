@@ -22,6 +22,7 @@ DEBUG = env('DEBUG')
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
+    # "daphne",
     'django.contrib.sites',
     # 'modeltranslation',
     'django.contrib.admin',
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'django_celery_results',
     'django_cron',
+    'channels',
 
     # 'django_postmark',
 
@@ -59,6 +61,12 @@ INSTALLED_APPS = [
     'apps.info',
     'apps.purchase',
 ]
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -97,11 +105,16 @@ REST_FRAMEWORK = {
 
 }
 
+CRON_CLASSES = [
+    'apps.hr.cron.SendDailyReport',
+]
+
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:8000',
     'http://138.197.88.10',
+    'http://0.0.0.0:8030',
 ]
 
 CORS_ALLOW_METHODS = [
@@ -170,6 +183,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'multisys.wsgi.application'
+ASGI_APPLICATION = 'multisys.asgi.application'
 
 DATABASES = {
     "default": {
@@ -275,7 +289,3 @@ if 'sql' in sys.argv:
             },
         },
     }
-
-CRON_CLASSES = [
-    'apps.hr.cron.SendDailyReport',
-]

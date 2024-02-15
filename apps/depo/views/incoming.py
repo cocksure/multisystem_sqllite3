@@ -24,7 +24,7 @@ class IncomingCreateView(generics.CreateAPIView):
         incoming_data = request.data.copy()
         incoming_material_data = incoming_data.pop('incoming_materials', [])
 
-        warehouse_id = incoming_data.get('warehouse')  # Предполагается, что это поле указывает на склад
+        warehouse_id = incoming_data.get('warehouse')
         warehouse = get_object_or_404(Warehouse, id=warehouse_id)
 
         if not request.user.is_authenticated or not warehouse.managers.filter(id=request.user.id).exists():

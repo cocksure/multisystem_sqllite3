@@ -24,3 +24,4 @@ psycopg2==2.9.9
 psycopg-binary==3.1.18
 sib-api-v3-sdk==7.6.0
 django-ratelimit==4.1.0
+channels==4.0.0
