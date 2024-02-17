@@ -1,7 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
 from django.utils import timezone
 from rest_framework import generics, status
 
@@ -11,7 +10,7 @@ from apps.purchase import models
 from rest_framework.response import Response
 
 from apps.purchase.models import PurchaseProduct, Purchase, PurchaseStatus
-from apps.purchase.serializers import PurchaseProductSerializer, PurchaseSerializer
+from apps.purchase.serializers import PurchaseProductSerializer
 from apps.shared.utils import CustomPagination
 from apps.shared.views import BaseListView
 from apps.shared.permissions import can_sign_purchase, can_assign_purchase

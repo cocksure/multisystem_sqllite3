@@ -22,7 +22,7 @@ DEBUG = env('DEBUG')
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
-    # "daphne",
+    "daphne",
     'django.contrib.sites',
     # 'modeltranslation',
     'django.contrib.admin',
@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'apps.shared',
     'apps.info',
     'apps.purchase',
+    'apps.chat',
 ]
 
 CHANNEL_LAYERS = {

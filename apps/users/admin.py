@@ -1,11 +1,11 @@
 from django.contrib import admin
+
 from apps.users import models
 from django.contrib.auth.models import Group
 from allauth.socialaccount.models import SocialApp, SocialToken, SocialAccount
 from django.contrib.sites.models import Site
-
-
-from apps.users.forms import CustomUserChangeForm
+from django.contrib.auth.admin import UserAdmin
+from apps.users.forms import CustomUserChangeForm, CustomUserCreationForm
 
 admin.site.unregister(Group)
 admin.site.unregister(SocialApp)
@@ -15,14 +15,15 @@ admin.site.unregister(SocialAccount)
 
 
 @admin.register(models.CustomUser)
-class CustomUserAdmin(admin.ModelAdmin):
+class CustomUserAdmin(UserAdmin):
+    add_form = CustomUserCreationForm
     form = CustomUserChangeForm
 
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
-        ('Personal Info', {'fields': ('first_name', 'last_name', 'email', 'profile_image')}),
+        ('Personal Info', {'fields': ('first_name', 'last_name', 'email',)}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
-        ('Custom Permissions', {'fields': ('can_sign_purchase', 'can_assign_purchase')}),
+        ('Custom Permissions', {'fields': ('is_admin', 'can_sign_purchase', 'can_assign_purchase')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
 
@@ -33,12 +34,9 @@ class CustomUserAdmin(admin.ModelAdmin):
         }),
     )
 
-    list_display = ('username', 'first_name', 'last_name', 'is_staff', 'can_sign_purchase')
-    search_fields = ('id', 'username', 'first_name', 'last_name',)
-    list_filter = ('can_sign_purchase',)
-    list_per_page = 100
-
-
-
-
-
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'can_sign_purchase')
+    search_fields = ('username', 'first_name', 'last_name', 'email')
+    list_filter = ('is_staff', 'is_superuser', 'can_sign_purchase', 'can_assign_purchase')
+    ordering = ('username',)
+    filter_horizontal = ('groups', 'user_permissions',)
+    empty_value_display = '-empty-'
