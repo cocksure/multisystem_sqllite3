@@ -11,4 +11,5 @@ class ChatRoomAdmin(admin.ModelAdmin):
 @admin.register(ChatMessage)
 class ChatMessageAdmin(admin.ModelAdmin):
     list_display = ('room', 'sender', 'message', 'timestamp')
+    search_fields = ('room',)
     list_per_page = 100

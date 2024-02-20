@@ -2,9 +2,13 @@ import smtplib
 import ssl
 from celery.utils.log import get_task_logger
 from django.core.mail import EmailMessage
+
+from multisys import settings
+from multisys.celery import app
 from .views import DailyReport
 
 logger = get_task_logger(__name__)
+
 
 @app.task
 def send_daily_report(subject, message, recipient_list):
@@ -24,6 +28,7 @@ def send_daily_report(subject, message, recipient_list):
         logger.info('Daily report sent successfully.')
     except Exception as e:
         logger.error(f'Failed to send daily report: {e}')
+
 
 recipient_list = ['sanjarwer93@gmail.com']
 subject = 'Ежедневный отчет'
