@@ -5,16 +5,15 @@ from django.core.mail import EmailMessage
 
 from multisys import settings
 from multisys.celery import app
-from .views import DailyReport
 
 logger = get_task_logger(__name__)
+from .views import DailyReport
 
 
 @app.task
 def send_daily_report(subject, message, recipient_list):
     context = ssl.create_default_context()
-    daily_report = DailyReport()
-    pdf_data = daily_report.generate_pdf(context={'ssl_context': context})
+    pdf_data = DailyReport.generate_pdf_report(context={'ssl_context': context})
     attachments = {'Daily_report.pdf': ('application/pdf', pdf_data)}
 
     email = EmailMessage(subject, message, 'sanjar@multisystem.online', recipient_list)

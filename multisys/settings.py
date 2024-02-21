@@ -141,7 +141,7 @@ CORS_ALLOW_HEADERS = [
 ]
 app = Celery('multisys')
 app.config_from_object('django.conf:settings', namespace='CELERY')
-broker_url = 'amqp://guest:guest@localhost:5672//'
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'rpc://'
 app.autodiscover_tasks()
 

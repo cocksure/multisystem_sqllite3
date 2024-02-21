@@ -2,6 +2,12 @@ from rest_framework import generics
 from apps.hr import models
 from apps.hr import serializers
 from apps.shared.views import BaseListView
+from .models import Employee, Department, Division, Position
+from django.template.loader import get_template
+from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404
+from django.views import View
+from weasyprint import HTML, CSS
 
 
 # ------------------------------Employee-------------------------------------
@@ -49,38 +55,28 @@ class PositionListCreateView(generics.ListCreateAPIView):
 
 
 # ------------------------------export pdf---------------------------------------------------
-from .models import Employee, Department, Division, Position
-from django.template.loader import get_template
-from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
-from django.views import View
-from weasyprint import HTML, CSS
-
 
 class DailyReport(View):
     template_name = 'daily_report.html'
 
     def get(self, request):
-        if 'pdf' in request.GET:
-            generate_and_send_daily_report_pdf.delay()  # Call Celery task to generate and send PDF
-            return HttpResponse("PDF generation and email sending task has been initiated.")
-        else:
-            divisions = Division.objects.all()
-            departments = Department.objects.all()
-            positions = Position.objects.all()
-            employees = Employee.objects.all()
+        divisions = Division.objects.all()
+        departments = Department.objects.all()
+        positions = Position.objects.all()
+        employees = Employee.objects.all()
 
-            context = {
-                'divisions': divisions,
-                'departments': departments,
-                'positions': positions,
-                'employees': employees,
-            }
+        context = {
+            'divisions': divisions,
+            'departments': departments,
+            'positions': positions,
+            'employees': employees,
+        }
 
-            return render(request, self.template_name, context)
+        return render(request, self.template_name, context)
 
-    def generate_pdf(self, context):
-        template = get_template(self.template_name)
+    @staticmethod
+    def generate_pdf_report(template_name, context):
+        template = get_template(template_name)
         html = template.render(context)
 
         css = """

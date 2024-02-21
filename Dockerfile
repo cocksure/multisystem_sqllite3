@@ -21,5 +21,6 @@ COPY . /app/
 
 EXPOSE 8030
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8030"]
+#CMD ["python", "manage.py", "runserver", "0.0.0.0:8030"]
 #CMD ["gunicorn", "multisys.wsgi:application", "-b", "0.0.0.0:8030"]
+CMD ["daphne", "multisys.asgi:application", "-b", "0.0.0.0", "-p", "8001"]
