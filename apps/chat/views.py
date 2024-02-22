@@ -4,6 +4,25 @@ from .models import ChatRoom, ChatMessage
 from .serializers import ChatRoomSerializer, ChatMessageSerializer
 from rest_framework.response import Response
 from rest_framework import status
+from django.http import HttpResponse
+from channels.layers import get_channel_layer
+
+
+async def send_test_message_view(request):
+    room_id = '1'  # ID комнаты, в которую хотите отправить сообщение
+    chat_group_name = f'chat_{room_id}'
+    channel_layer = get_channel_layer()
+
+    # Отправляем сообщение в формате JSON
+    await channel_layer.group_send(
+        chat_group_name,
+        {
+            'type': 'chat.message',
+            'message': 'Test message'
+        }
+    )
+
+    return HttpResponse('Test message sent')
 
 
 class ChatRoomViewSet(viewsets.ModelViewSet):
