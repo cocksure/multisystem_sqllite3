@@ -65,7 +65,10 @@ INSTALLED_APPS = [
 
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('redis', 6379)],  # Use the service name 'redis' as the host
+        },
     },
 }
 
@@ -99,16 +102,26 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle',
         'rest_framework.throttling.AnonRateThrottle',
     ],
+
     'DEFAULT_THROTTLE_RATES': {
         'user': '3/s',
         'anon': '1/s',
     }
-
 }
 
 CRON_CLASSES = [
     'apps.hr.cron.SendDailyReport',
 ]
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",  # <-- обращение к Redis через имя сервиса 'redis'
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
@@ -139,10 +152,11 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 
 ]
+
 app = Celery('multisys')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'rpc://'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 app.autodiscover_tasks()
 
 CELERY_BEAT_SCHEDULE = {
@@ -274,7 +288,6 @@ logging.basicConfig(
     format='%(asctime)s [%(levelname)s] - %(message)s',
 )
 
-# Включит логгирование SQL-запросов для Django
 if 'sql' in sys.argv:
     LOGGING = {
         'version': 1,

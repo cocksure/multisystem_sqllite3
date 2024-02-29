@@ -56,27 +56,12 @@ class PositionListCreateView(generics.ListCreateAPIView):
 
 # ------------------------------export pdf---------------------------------------------------
 
+
 class DailyReport(View):
     template_name = 'daily_report.html'
 
-    def get(self, request):
-        divisions = Division.objects.all()
-        departments = Department.objects.all()
-        positions = Position.objects.all()
-        employees = Employee.objects.all()
-
-        context = {
-            'divisions': divisions,
-            'departments': departments,
-            'positions': positions,
-            'employees': employees,
-        }
-
-        return render(request, self.template_name, context)
-
-    @staticmethod
-    def generate_pdf_report(template_name, context):
-        template = get_template(template_name)
+    def generate_pdf_report(self, context):
+        template = get_template(self.template_name)
         html = template.render(context)
 
         css = """
@@ -97,6 +82,25 @@ class DailyReport(View):
         pdf_data = HTML(string=html).write_pdf(stylesheets=[CSS(string=css)])
 
         return pdf_data
+
+    def get(self, request):
+        divisions = Division.objects.all()
+        departments = Department.objects.all()
+        positions = Position.objects.all()
+        employees = Employee.objects.all()
+
+        context = {
+            'divisions': divisions,
+            'departments': departments,
+            'positions': positions,
+            'employees': employees,
+        }
+
+        pdf_data = self.generate_pdf_report(context)
+
+        response = HttpResponse(pdf_data, content_type='application/pdf')
+        response['Content-Disposition'] = 'filename="daily_report.pdf"'
+        return response
 
 
 class EmployeePDFExportView(View):

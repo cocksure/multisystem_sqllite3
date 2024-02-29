@@ -28,6 +28,11 @@ class Outgoing(BaseModel):
 
     id = models.AutoField(primary_key=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['code', ])
+        ]
+
     def save(self, *args, **kwargs):
         if not self.code:
             last_outgoing = Outgoing.objects.order_by('-id').first()

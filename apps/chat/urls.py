@@ -1,12 +1,8 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import ChatRoomViewSet, ChatMessageViewSet, send_test_message_view
-
-router = DefaultRouter()
-router.register(r'chatrooms', ChatRoomViewSet)
-router.register(r'chatmessages', ChatMessageViewSet)
+from django.urls import path
+from .views import ChatMessageListCreateAPIView, ChatRoomListCreateApiView, send_test_message_view
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('', ChatMessageListCreateAPIView.as_view(), name='chatmessage'),
+    path('chatroom/', ChatRoomListCreateApiView.as_view(), name='chatmessage'),
     path('send_test_message/', send_test_message_view, name='send_test_message'),
 ]

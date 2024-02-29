@@ -14,7 +14,7 @@ class Incoming(BaseModel):
         (INVOICE, 'По накладной'),
     ]
 
-    data = models.DateField(editable=True)
+    data = models.DateField()
     warehouse = models.ForeignKey('info.Warehouse', on_delete=models.PROTECT, related_name='incoming_warehouse')
     from_warehouse = models.ForeignKey('info.Warehouse', on_delete=models.CASCADE, null=True, blank=True,
                                        related_name='incoming_from_warehouse')
@@ -24,6 +24,11 @@ class Incoming(BaseModel):
     purchase = models.ForeignKey('purchase.Purchase', on_delete=models.SET_NULL, null=True, blank=True)
     note = models.CharField(max_length=250, null=True, blank=True)
     incoming_type = models.CharField(choices=INCOMING_TYPE, null=True, blank=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['warehouse', 'from_warehouse'])
+        ]
 
     def save(self, *args, **kwargs):
         process_incoming(self)

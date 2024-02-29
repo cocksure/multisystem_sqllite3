@@ -26,3 +26,5 @@ django-ratelimit==4.1.0
 channels==4.0.0
 daphne==4.1.0
 gunicorn==21.2.0
+redis==5.0.1
+django-redis==5.4.0

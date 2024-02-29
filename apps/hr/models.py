@@ -56,5 +56,10 @@ class Employee(BaseModel):
     passport_pin = models.CharField(max_length=14, unique=True)
     photo = models.ImageField(upload_to='employee_photos', default='default-profile__picture.jpg')
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['full_name'])
+        ]
+
     def __str__(self):
         return self.full_name

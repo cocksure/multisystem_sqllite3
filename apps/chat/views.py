@@ -1,19 +1,23 @@
-from rest_framework import viewsets
+from django.utils.decorators import method_decorator
 from django.utils import timezone
+from rest_framework.generics import ListCreateAPIView
+
 from .models import ChatRoom, ChatMessage
 from .serializers import ChatRoomSerializer, ChatMessageSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import HttpResponse
 from channels.layers import get_channel_layer
+from django.views.decorators.cache import cache_page
+
+from apps.shared.utils import CustomPagination
 
 
 async def send_test_message_view(request):
-    room_id = '1'  # ID комнаты, в которую хотите отправить сообщение
+    room_id = '1'
     chat_group_name = f'chat_{room_id}'
     channel_layer = get_channel_layer()
 
-    # Отправляем сообщение в формате JSON
     await channel_layer.group_send(
         chat_group_name,
         {
@@ -25,14 +29,22 @@ async def send_test_message_view(request):
     return HttpResponse('Test message sent')
 
 
-class ChatRoomViewSet(viewsets.ModelViewSet):
+class ChatRoomListCreateApiView(ListCreateAPIView):
     queryset = ChatRoom.objects.all()
     serializer_class = ChatRoomSerializer
+    pagination_class = CustomPagination
 
 
-class ChatMessageViewSet(viewsets.ModelViewSet):
+class ChatMessageListCreateAPIView(ListCreateAPIView):
     queryset = ChatMessage.objects.all()
     serializer_class = ChatMessageSerializer
+
+    def get_queryset(self):
+        return ChatMessage.objects.all()
+
+    @method_decorator(cache_page(60))
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
     def perform_create(self, serializer):
         sender = self.request.user

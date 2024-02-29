@@ -3,8 +3,8 @@ version: '3.8'
 services:
   web:
     build: .
-    command: gunicorn -b 0.0.0.0:8030 multisys.wsgi:application
-    #command: python manage.py runserver 0.0.0.0:8030
+    #    command: gunicorn -b 0.0.0.0:8030 multisys.wsgi:application
+    command: python manage.py runserver 0.0.0.0:8030
     volumes:
       - .:/app
     ports:
@@ -16,6 +16,11 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_HOST=${DB_DOCKER_HOST}
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
 
   db:
     image: postgres:latest

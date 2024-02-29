@@ -3,6 +3,7 @@ from django.db import models
 from apps.shared.models import BaseModel
 from apps.hr.models import Employee, Department
 
+
 class PurchaseStatus(models.TextChoices):
     NEW = 'new', 'Новая'
     CONFIRMED = 'confirmed', 'Подтверждена'
